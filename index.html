@@ -421,6 +421,9 @@
                 <button onclick="switchTab('manual')" id="tab-btn-manual" class="py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 hover:border-emerald-500 whitespace-nowrap focus:outline-none">
                     <i class="fa-solid fa-pen-to-square mr-1.5"></i>Manual Show Form
                 </button>
+                <button onclick="switchTab('songs')" id="tab-btn-songs" class="py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 hover:border-emerald-500 whitespace-nowrap focus:outline-none">
+                    <i class="fa-solid fa-music mr-1.5"></i>My Top Songs Stats
+                </button>
             </div>
 
             <!-- Tab Contents -->
@@ -550,6 +553,16 @@
                     </button>
                 </div>
 
+                <!-- Tab: Songs Stats -->
+                <div id="tab-content-songs" class="hidden space-y-4">
+                    <p class="text-xs text-gray-400">
+                        Ranked list of the songs you've seen most frequently live across your attended shows. Click any song to search and view its visits log.
+                    </p>
+                    <div id="top-songs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto pr-1">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -602,6 +615,7 @@
                             <th class="py-3 px-4">Venue</th>
                             <th class="py-3 px-4">Location</th>
                             <th class="py-3 px-4">Rating</th>
+                            <th class="py-3 px-4">My Rating</th>
                             <th class="py-3 px-4">Era</th>
                             <th class="py-3 px-4">Type</th>
                             <th class="py-3 px-4">Concert Memories / Notes</th>
@@ -883,6 +897,14 @@
                 avg_rating: 4.38,
                 setlist_highlight: "Set II: Down with Disease > Carini > Twist, Fluffhead",
                 top_jams: ["Twist (06/24/16)", "Down with Disease (06/25/16)"]
+            },
+            "Hollywood Bowl": {
+                coords: [34.1122, -118.3391],
+                standard_name: "Hollywood Bowl",
+                city: "Hollywood, CA",
+                avg_rating: 4.35,
+                setlist_highlight: "Set II: Harry Hood > Character Zero, Chalk Dust Torture",
+                top_jams: ["Harry Hood (08/05/13)"]
             }
         };
 
@@ -913,10 +935,40 @@
                 encore: "Good Times Bad Times"
             },
             "1992-12-03": {
-                set1: "Loving Cup, Rift, Split Open and Melt, Sparkle, The Squirming Coil",
-                set2: "Wilson > Divided Sky, Mound, It's Ice, Harry Hood",
+                set1: "Maze, Fee > All Things Reconsidered, Split Open and Melt, Bouncing Around the Room, Uncle Pen, Chalk Dust Torture, The Horse > Silent in the Morning, Reba, Sweet Adeline, Run Like an Antelope",
+                set2: "Rift, Guelah Papyrus > Fluffhead, Mike's Song > I Am Hydrogen > Weekapaug Groove, Lawn Boy, It's Ice > My Sweet One > Big Ball Jam, Hold Your Head Up > Cracklin' Rosie > Hold Your Head Up, Take the 'A' Train > Cavern",
                 set3: "",
-                encore: "Sweet Adeline, Llama"
+                encore: "Bold as Love"
+            },
+            "1993-08-06": {
+                set1: "Split Open and Melt, Poor Heart, The Curtain, Sample in a Jar, Rift, Horn, The Divided Sky, Nellie Kane, Chalk Dust Torture, Suzy Greenberg",
+                set2: "Buried Alive, Tweezer, Guelah Papyrus, The Squirming Coil, Uncle Pen, You Enjoy Myself, Halley's Comet, Slave to the Traffic Light, Hold Your Head Up, Cracklin' Rosie, Hold Your Head Up, Tweezer Reprise",
+                set3: "",
+                encore: "Amazing Grace, Highway to Hell"
+            },
+            "1994-11-17": {
+                set1: "Helter Skelter, Scent of a Mule, Maze, Bouncing Around the Room, Wilson > The Divided Sky, Dog Faced Boy, Colonel Forbin's Ascent > Fly Famous Mockingbird > Vibration of Life > Fly Famous Mockingbird > Down with Disease",
+                set2: "2001 > David Bowie, Sleeping Monkey > Sparkle, You Enjoy Myself > Hold Your Head Up > Love You > Hold Your Head Up > Slave to the Traffic Light, Golgi Apparatus",
+                set3: "",
+                encore: "I'm Blue I'm Lonesome, Nellie Kane, My Long Journey Home, To France > Fixin' to Die"
+            },
+            "1995-11-30": {
+                set1: "Sample in a Jar > The Curtain > Ha Ha Ha > Julius, NICU > Bathtub Gin, Rift > Fast Enough for You > The Lizards, Fire",
+                set2: "Cars Trucks Buses > Tweezer -> Makisupa Policeman > Run Like an Antelope > Scent of a Mule, Free, Strange Design, Amazing Grace",
+                set3: "",
+                encore: "Harry Hood"
+            },
+            "1997-12-07": {
+                set1: "AC/DC Bag, Psycho Killer, Jesus Just Left Chicago, My Mind's Got a Mind of Its Own, It's Ice, Theme from the Bottom, Tube > Dayton Jam > Slave to the Traffic Light",
+                set2: "Timber (Jerry the Mule), Boogie On Reggae Woman, Reba, Fast Enough for You, Prince Caspian, Hold Your Head Up > Crucial Taunt > Hold Your Head Up, Harry Hood",
+                set3: "",
+                encore: "Hello My Baby"
+            },
+            "2013-08-05": {
+                set1: "AC/DC Bag, The Moma Dance, Sparkle, Stealing Time From the Faulty Plan, Lawn Boy, Wolfman's Brother, Roses Are Free, Scent of a Mule, Ocelot, Cavern, While My Guitar Gently Weeps",
+                set2: "Chalk Dust Torture, Golden Age > Birds of a Feather, Sand > Down with Disease > My Friend, My Friend, Harry Hood > Character Zero",
+                set3: "",
+                encore: "Loving Cup"
             }
         };
 
@@ -925,13 +977,24 @@
         const SONGS_SET_2 = ["Mike's Song", "I Am Hydrogen", "Weekapaug Groove", "Tweezer", "Tweezer Reprise", "Ghost", "Piper", "Down with Disease", "You Enjoy Myself", "Harry Hood", "Slave to the Traffic Light", "Carini", "Sand", "Crosseyed and Painless", "Simple", "Light", "Golden Age", "Scents and Subtle Sounds"];
         const SONGS_ENCORE = ["Loving Cup", "Character Zero", "Julius", "Tweezer Reprise", "Good Times Bad Times", "Run Like an Antelope", "Contact", "First Tube", "Show of Life", "Rocky Top"];
 
-        // Generate robust dynamic setlists if not explicitly mapped
-        function getSetlistForShow(dateString) {
-            if (HISTORIC_SETLISTS[dateString]) {
-                return HISTORIC_SETLISTS[dateString];
+        // Cache to store setlists loaded from API
+        let fetchedSetlists = {};
+
+        // Load cached setlists from localStorage if available
+        try {
+            const cached = localStorage.getItem('phish_setlist_cache');
+            if (cached) {
+                fetchedSetlists = JSON.parse(cached);
             }
-            
-            // Generate pseudo-deterministic setlist based on show date to keep it consistent
+        } catch (e) {
+            console.error("Error loading setlist cache", e);
+        }
+
+        // Setlist fetch status tracker to prevent duplicate requests
+        let fetchingSetlists = {};
+
+        // Generate robust dynamic setlists if not explicitly mapped
+        function generateFallbackSetlist(dateString) {
             let seed = 0;
             for (let i = 0; i < dateString.length; i++) {
                 seed += dateString.charCodeAt(i);
@@ -961,22 +1024,96 @@
             };
         }
 
+        function getSetlistForShow(dateString) {
+            if (HISTORIC_SETLISTS[dateString]) {
+                return HISTORIC_SETLISTS[dateString];
+            }
+            if (fetchedSetlists[dateString]) {
+                return fetchedSetlists[dateString];
+            }
+            
+            // If it's a fallback generated setlist that we saved on error
+            if (fetchingSetlists[dateString] === 'failed') {
+                return generateFallbackSetlist(dateString);
+            }
+            
+            if (!fetchingSetlists[dateString]) {
+                fetchingSetlists[dateString] = 'fetching';
+                
+                fetch(`https://phish.in/api/v2/shows/${dateString}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("HTTP " + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data && data.tracks && Array.isArray(data.tracks)) {
+                            let s1List = [];
+                            let s2List = [];
+                            let s3List = [];
+                            let encList = [];
+                            
+                            data.tracks.forEach(track => {
+                                const setName = (track.set_name || '').toLowerCase();
+                                if (setName.includes('set 1') || setName === '1') {
+                                    s1List.push(track.title);
+                                } else if (setName.includes('set 2') || setName === '2') {
+                                    s2List.push(track.title);
+                                } else if (setName.includes('set 3') || setName === '3') {
+                                    s3List.push(track.title);
+                                } else if (setName.includes('encore') || setName === 'e') {
+                                    encList.push(track.title);
+                                } else {
+                                    s1List.push(track.title);
+                                }
+                            });
+                            
+                            fetchedSetlists[dateString] = {
+                                set1: s1List.join(', '),
+                                set2: s2List.join(', '),
+                                set3: s3List.join(', '),
+                                encore: encList.join(', ')
+                            };
+                            
+                            try {
+                                localStorage.setItem('phish_setlist_cache', JSON.stringify(fetchedSetlists));
+                            } catch (e) {}
+                            
+                            refreshAll();
+                        } else {
+                            throw new Error("No track data found");
+                        }
+                    })
+                    .catch(err => {
+                        console.warn(`Could not load setlist from Phish.in for ${dateString}:`, err);
+                        fetchingSetlists[dateString] = 'failed';
+                        refreshAll();
+                    });
+            }
+            
+            return {
+                set1: "Loading verified setlist from Phish.in...",
+                set2: "",
+                set3: "",
+                encore: ""
+            };
+        }
+
         const SEED_TEXT = `1992
-December 3, 1992:  Bogart's – Cincinnati, OH
+December 3, 1992:  Bogart's – Cincinnati, OH  (First Bogart's show!)
 1993
-August 6, 1993:  Peacock Pavilion, Cincinnati Zoo – Cincinnati, OH
+August 6, 1993:  Peacock Pavilion, Cincinnati Zoo – Cincinnati, OH  (The famous Tequila Zoo show!)
 August 14, 1993:  World Music Theatre – Tinley Park, IL
 December 31, 1993:  Centrum in Worcester – Worcester, MA
 1994
 June 25, 1994:  Nautica Stage – Cleveland, OH
 November 12, 1994:  KSU Mac Center – Kent, OH
-November 17, 1994:  Hara Arena – Dayton, OH
+November 17, 1994:  Hara Arena – Dayton, OH  (Acoustic guest set with Rev. Jeff Mosier!)
 November 25, 1994:  UIC Pavilion – Chicago, IL
 1995
 June 19, 1995:  Deer Creek Music Center – Noblesville, IN
 June 20, 1995:  Blossom Music Center – Cuyahoga Falls, OH
 October 31, 1995:  Rosemont Horizon – Rosemont, IL  (The legendary Halloween "Quadrophenia" show!)
-November 30, 1995:  Ervin J. Nutter Center – Dayton, OH
+November 30, 1995:  Ervin J. Nutter Center – Dayton, OH  (Featuring the legendary 30-minute Dayton Tweezer!)
 1996
 August 10, 1996:  Alpine Valley Music Theatre – East Troy, WI
 August 12, 1996:  Deer Creek Music Center – Noblesville, IN
@@ -989,7 +1126,7 @@ August 11, 1997:  Deer Creek Music Center – Noblesville, IN
 August 16–17, 1997:  The Great Went – Loring Air Force Base, Limestone, ME
 December 5, 1997:  CSU Convocation Center – Cleveland, OH
 December 6, 1997:  The Palace of Auburn Hills – Auburn Hills, MI
-December 7, 1997:  Ervin J. Nutter Center – Dayton, OH
+December 7, 1997:  Ervin J. Nutter Center – Dayton, OH  (Legendary show! AC/DC Bag > Psycho Killer, Tube > Dayton Jam)
 1998
 July 31, 1998:  Polaris Amphitheater – Columbus, OH
 August 8, 1998:  New World Music Theatre – Tinley Park, IL
@@ -1016,6 +1153,8 @@ April 16, 2004:  Thomas & Mack Center – Las Vegas, NV
 April 17, 2004:  Thomas & Mack Center – Las Vegas, NV
 2009
 October 30 – November 1, 2009:  Festival 8 – Empire Polo Club, Indio, CA
+2013
+August 5, 2013:  Hollywood Bowl – Hollywood, CA
 2016
 June 24, 2016:  Wrigley Field – Chicago, IL
 June 25, 2016:  Wrigley Field – Chicago, IL
@@ -1071,11 +1210,26 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         date: "1994-11-17",
                         venue: "Hara Arena",
                         location: "Dayton, OH",
-                        notes: "Famous Dayton Tweezer show! Added via database migration.",
+                        notes: "Special acoustic guest set with Rev. Jeff Mosier! Added via database migration.",
                         community_rating: 4.65,
                         era: "1.0",
                         source: "Database Migration",
                         is_milestone: 1
+                    });
+                }
+                // Database Migration 3: Add Hollywood Bowl show on 2013-08-05 if missing
+                const hasHollywood13 = shows.some(s => s.date === "2013-08-05");
+                if (!hasHollywood13) {
+                    shows.push({
+                        id: Date.now() + Math.random(),
+                        date: "2013-08-05",
+                        venue: "Hollywood Bowl",
+                        location: "Hollywood, CA",
+                        notes: "Legendary show with no ticket stub! Added via database migration.",
+                        community_rating: 4.35,
+                        era: "3.0",
+                        source: "Database Migration",
+                        is_milestone: 0
                     });
                 }
             } else {
@@ -1211,8 +1365,12 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         // Identify milestones from text markers
                         if (notes.toLowerCase().includes('quadrophenia') || 
                             notes.toLowerCase().includes('halloween') || 
+                            notes.toLowerCase().includes('festival') ||
+                            notes.toLowerCase().includes('exile') ||
+                            notes.toLowerCase().includes('acoustic') ||
                             venue.toLowerCase().includes('great went') ||
-                            showDate.endsWith('-12-31')) {
+                            showDate.endsWith('-12-31') ||
+                            ['1992-12-03', '1993-08-06', '1994-11-17', '1995-11-30', '1997-12-07'].includes(showDate)) {
                             isMilestone = 1;
                         }
 
@@ -1264,6 +1422,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             updateCharts();
             renderTable();
             populateVenueSelectors();
+            updateTopSongsList();
         }
 
         function updateMetrics() {
@@ -1595,6 +1754,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         <td class="py-3 px-4 text-gray-200 font-medium">${s.venue}</td>
                         <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${s.location || '-'}</td>
                         <td class="py-3 px-4 text-yellow-500 font-mono font-bold whitespace-nowrap">⭐ ${parseFloat(s.community_rating).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-pink-400 font-mono font-bold whitespace-nowrap">${s.personal_rating ? '💖 ' + s.personal_rating.toFixed(1) : '<span class="text-gray-650 italic text-[10px]">- unrated -</span>'}</td>
                         <td class="py-3 px-4 text-gray-400 font-mono whitespace-nowrap">${showEra}</td>
                         <td class="py-3 px-4 whitespace-nowrap">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.is_milestone ? 'bg-yellow-950/80 text-yellow-400 border border-yellow-800' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
@@ -1615,7 +1775,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         const dropTr = document.createElement('tr');
                         dropTr.className = "bg-gray-950 border-b border-gray-800";
                         dropTr.innerHTML = `
-                            <td colspan="9" class="py-4 px-6">
+                            <td colspan="10" class="py-4 px-6">
                                 <div class="space-y-3 border-l-2 border-emerald-500/50 pl-4 py-1">
                                     <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
                                         <i class="fa-solid fa-list-music text-[10px]"></i> Expanded Setlist Breakdown
@@ -1625,21 +1785,21 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                                         <!-- Sets -->
                                         <div class="md:col-span-8 space-y-2">
                                             <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 1:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set1}</p>
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 1 (Click songs to see stats):</span>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set1)}</p>
                                             </div>
                                             <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
                                                 <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 2:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set2}</p>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set2)}</p>
                                             </div>
                                             ${setlist.set3 ? `
                                             <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
                                                 <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 3:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set3}</p>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set3)}</p>
                                             </div>` : ''}
                                             <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
                                                 <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Encore:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.encore}</p>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.encore)}</p>
                                             </div>
                                         </div>
 
@@ -1653,7 +1813,18 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                                                 <span class="text-gray-500">Community Rank:</span>
                                                 <span class="text-yellow-400 font-bold">⭐ ${parseFloat(s.community_rating).toFixed(2)} / 5.0</span>
                                             </div>
-                                            <div class="flex justify-between text-[11px]">
+                                            <!-- My Rating Star Selector -->
+                                            <div class="flex justify-between items-center text-[11px]">
+                                                <span class="text-gray-500">My Personal Rating:</span>
+                                                <div class="flex gap-0.5 text-xs text-gray-600">
+                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 1)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 1 ? 'text-pink-500' : ''}" title="Rate 1 Star"><i class="fa-solid fa-star"></i></span>
+                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 2)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 2 ? 'text-pink-500' : ''}" title="Rate 2 Stars"><i class="fa-solid fa-star"></i></span>
+                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 3)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 3 ? 'text-pink-500' : ''}" title="Rate 3 Stars"><i class="fa-solid fa-star"></i></span>
+                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 4)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 4 ? 'text-pink-500' : ''}" title="Rate 4 Stars"><i class="fa-solid fa-star"></i></span>
+                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 5)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 5 ? 'text-pink-500' : ''}" title="Rate 5 Stars"><i class="fa-solid fa-star"></i></span>
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-between text-[11px] border-t border-gray-800/80 pt-2">
                                                 <span class="text-gray-500">Phish Touring Era:</span>
                                                 <span class="text-emerald-400 font-bold font-mono">Era ${showEra}</span>
                                             </div>
@@ -1670,7 +1841,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             if (tbody.children.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center py-8 text-gray-500 italic">No matching concert entries found in local database storage.</td>
+                        <td colspan="10" class="text-center py-8 text-gray-500 italic">No matching concert entries found in local database storage.</td>
                     </tr>
                 `;
             }
@@ -1686,10 +1857,12 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             document.getElementById('tab-content-bulk').classList.add('hidden');
             document.getElementById('tab-content-ocr').classList.add('hidden');
             document.getElementById('tab-content-manual').classList.add('hidden');
+            document.getElementById('tab-content-songs').classList.add('hidden');
 
             document.getElementById('tab-btn-bulk').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
             document.getElementById('tab-btn-ocr').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
             document.getElementById('tab-btn-manual').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
+            document.getElementById('tab-btn-songs').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
 
             document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
             const targetBtn = document.getElementById(`tab-btn-${tabId}`);
@@ -1843,7 +2016,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             }
 
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Date,Venue,Location,Community Rating,Era,Source,Is Milestone,Notes\r\n";
+            csvContent += "Date,Venue,Location,Community Rating,My Personal Rating,Era,Source,Is Milestone,Notes\r\n";
 
             // Sort newest first for cleaner files
             const sorted = [...shows].sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -1854,6 +2027,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                     `"${s.venue.replace(/"/g, '""')}"`,
                     `"${(s.location || '').replace(/"/g, '""')}"`,
                     `"${s.community_rating.toFixed(2)}"`,
+                    `"${s.personal_rating ? s.personal_rating.toFixed(1) : '-'}"`,
                     `"${getEra(s.date).split(" ")[0]}"`,
                     `"${s.source}"`,
                     `"${s.is_milestone ? 'Yes' : 'No'}"`,
@@ -1935,7 +2109,6 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                 lb.classList.remove('opacity-0');
             }, 50);
         }
-
         function closeLightbox() {
             const lb = document.getElementById('memory-lightbox');
             if (lb) {
@@ -1944,6 +2117,201 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                     lb.classList.add('hidden');
                 }, 300);
             }
+        }
+        // Show Star Rating Handler
+        function rateShow(showId, rating) {
+            const index = shows.findIndex(s => s.id === showId);
+            if (index > -1) {
+                if (shows[index].personal_rating === rating) {
+                    shows[index].personal_rating = 0;
+                } else {
+                    shows[index].personal_rating = rating;
+                }
+                refreshAll();
+            }
+        }
+
+        // Format setlist string with clickable links for each song
+        function formatInteractiveSetlist(setlistString) {
+            if (!setlistString) return `<span class="text-gray-650 italic">No songs listed</span>`;
+            
+            const tokens = setlistString.split(/(,\s*|(?:\s*-?>\s*)+)/);
+            
+            return tokens.map(token => {
+                const trimmed = token.trim();
+                if (trimmed === "," || trimmed === ">" || trimmed.includes("->") || !trimmed) {
+                    return token;
+                }
+                
+                const cleanSong = trimmed.replace(/^["'(]+|["')]+$/g, '').trim();
+                return `<span onclick="event.stopPropagation(); analyzeSong('${cleanSong.replace(/'/g, "\\'")}')" class="hover:text-cyan-400 hover:underline cursor-pointer transition-colors font-semibold" title="Click to see stats for ${cleanSong}">${trimmed}</span>`;
+            }).join('');
+        }
+
+        // Search attended shows for occurrences of a specific song
+        function analyzeSong(songName) {
+            const cleanTarget = songName.replace(/^["'(]+|["')]+$/g, '').trim().toLowerCase();
+            const matches = [];
+            shows.forEach(s => {
+                const setlist = getSetlistForShow(s.date);
+                const songsText = `${setlist.set1}, ${setlist.set2}, ${setlist.set3}, ${setlist.encore}`;
+                
+                // Split by commas and arrows and clean
+                const songArray = songsText.split(/(?:,|\s*>\s*|\s*-?>\s*)+/).map(song => {
+                    return song.replace(/^["'(]+|["')]+$/g, '').trim().toLowerCase();
+                });
+                
+                if (songArray.includes(cleanTarget)) {
+                    matches.push(s);
+                }
+            });
+            
+            showSongAnalysisModal(songName, matches);
+        }
+
+        // Render dynamic modal showing song attendance metrics
+        function showSongAnalysisModal(songName, matchingShows) {
+            let modal = document.getElementById('song-analysis-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'song-analysis-modal';
+                modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-md z-[99999] flex items-center justify-center p-4 hidden transition-opacity duration-300 opacity-0';
+                modal.onclick = closeSongAnalysisModal;
+                document.body.appendChild(modal);
+            }
+            
+            let showsListHTML = "";
+            matchingShows.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(s => {
+                showsListHTML += `
+                    <div onclick="event.stopPropagation(); navigateToShow('${s.id}')" class="bg-gray-850 hover:bg-gray-800 border border-gray-800 hover:border-cyan-500/50 rounded-xl p-3 flex justify-between items-center cursor-pointer transition-all">
+                        <div>
+                            <div class="text-[10px] text-gray-500 font-semibold uppercase">🗓️ ${s.date}</div>
+                            <div class="text-xs font-bold text-gray-200 mt-0.5">${s.venue}</div>
+                            <div class="text-[10px] text-gray-400 mt-0.5">${s.location}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] bg-cyan-950/50 text-cyan-400 border border-cyan-800/40 px-2 py-0.5 rounded-full font-bold">Seen</span>
+                            <div class="text-[10px] text-yellow-500 font-bold mt-1.5">⭐ ${parseFloat(s.community_rating).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modal.innerHTML = `
+                <div class="bg-gray-900/90 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col pointer-events-auto" onclick="event.stopPropagation();">
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-start border-b border-gray-800 pb-3">
+                        <div>
+                            <h3 class="text-md font-bold text-cyan-400 flex items-center gap-2">
+                                <i class="fa-solid fa-music"></i> Song Stats: <span class="text-gray-100">${songName}</span>
+                            </h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Found in your attended shows archive.</p>
+                        </div>
+                        <button onclick="closeSongAnalysisModal()" class="text-gray-400 hover:text-pink-400 text-lg transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    
+                    <!-- Stats Highlight Box -->
+                    <div class="bg-gradient-to-r from-cyan-950/20 to-indigo-950/20 border border-cyan-900/40 rounded-xl p-4 text-center">
+                        <div class="text-4xl font-extrabold text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]">${matchingShows.length}</div>
+                        <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mt-1">Times Seen Live</div>
+                        <div class="text-[10px] text-gray-500 mt-1 italic">Across your ${shows.length} attended concerts.</div>
+                    </div>
+                    
+                    <!-- Shows List -->
+                    <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar max-h-56">
+                        <span class="text-[10px] font-bold uppercase text-gray-500 tracking-wider block mb-1">Visits Listing (${matchingShows.length}):</span>
+                        ${showsListHTML ? showsListHTML : '<div class="text-xs text-gray-500 italic text-center py-4">You haven\'t logged any shows with this song in the setlist yet.</div>'}
+                    </div>
+                    
+                    <div class="text-center pt-2 border-t border-gray-800 text-[10px] text-gray-500 italic">
+                        Click a card above to highlight that show in your archive table.
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 50);
+        }
+
+        function closeSongAnalysisModal() {
+            const modal = document.getElementById('song-analysis-modal');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function navigateToShow(showId) {
+            closeSongAnalysisModal();
+            const numericId = parseInt(showId);
+            expandedShows[numericId] = true;
+            renderTable();
+            
+            setTimeout(() => {
+                const trs = document.querySelectorAll('#concert-table-body tr');
+                for (let tr of trs) {
+                    if (tr.onclick && tr.onclick.toString().includes(showId)) {
+                        tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        tr.classList.add('bg-cyan-950/40');
+                        setTimeout(() => {
+                            tr.classList.remove('bg-cyan-950/40');
+                        }, 2000);
+                        break;
+                    }
+                }
+            }, 150);
+        }
+
+        // Update top 16 ranked songs list in stats tab
+        function updateTopSongsList() {
+            const container = document.getElementById('top-songs-container');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const songCounts = {};
+            shows.forEach(s => {
+                const setlist = getSetlistForShow(s.date);
+                const songsText = `${setlist.set1}, ${setlist.set2}, ${setlist.set3}, ${setlist.encore}`;
+                
+                const songs = songsText.split(/(?:,|\s*>\s*|\s*-?>\s*)+/);
+                songs.forEach(song => {
+                    const cleaned = song.replace(/^["'(]+|["')]+$/g, '').trim();
+                    if (!cleaned || cleaned.toLowerCase().includes("loading") || cleaned.toLowerCase().includes("no songs")) return;
+                    songCounts[cleaned] = (songCounts[cleaned] || 0) + 1;
+                });
+            });
+            
+            const sortedSongs = Object.entries(songCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 16);
+                
+            if (sortedSongs.length === 0) {
+                container.innerHTML = `<div class="col-span-4 text-center text-xs text-gray-500 italic py-6">No song statistics available. Try expanding a show to fetch setlists!</div>`;
+                return;
+            }
+            
+            const maxCount = sortedSongs[0][1];
+            
+            sortedSongs.forEach(([songName, count]) => {
+                const pct = ((count / maxCount) * 100).toFixed(0);
+                const songCard = document.createElement('div');
+                songCard.onclick = () => analyzeSong(songName);
+                songCard.className = "bg-gray-850 hover:bg-gray-800 border border-gray-800 hover:border-cyan-500/50 rounded-xl p-3 flex flex-col justify-between cursor-pointer transition-all shadow-md";
+                songCard.innerHTML = `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-gray-200">${songName}</span>
+                        <span class="text-cyan-400 font-mono font-bold">${count} ${count === 1 ? 'time' : 'times'}</span>
+                    </div>
+                    <div class="w-full bg-gray-900 rounded-full h-1.5 mt-2 overflow-hidden border border-gray-800">
+                        <div class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                container.appendChild(songCard);
+            });
         }
     </script>
 </body>
