@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curtis Smith's Phish Tour Tracker & Spatial Footprint</title>
+    <!-- Home Screen Web App Icons -->
+    <link rel="apple-touch-icon" href="assets/Live Phish.JPG">
+    <link rel="icon" type="image/jpeg" href="assets/Live Phish.JPG">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Outfit Font -->
@@ -29,6 +32,23 @@
             background-attachment: fixed;
             color: #f3f4f6;
             overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0b5fa5;
+            background-image: 
+                radial-gradient(circle, transparent 15%, #ef4444 16%, #ef4444 32%, transparent 33%),
+                radial-gradient(circle, transparent 15%, #ef4444 16%, #ef4444 32%, transparent 33%);
+            background-size: 80px 80px;
+            background-position: 0 0, 40px 40px;
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: -2;
         }
         /* Custom scrollbars */
         ::-webkit-scrollbar {
@@ -235,6 +255,28 @@
             transform: scale(1.05) rotate(5deg);
             box-shadow: 0 0 30px rgba(236, 72, 153, 0.65);
         }
+        .bg-memory-card {
+            position: fixed;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            opacity: 0.05;
+            filter: grayscale(100%) blur(1px);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            cursor: pointer;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .bg-memory-card:hover {
+            opacity: 0.65 !important;
+            filter: grayscale(0%) blur(0px) !important;
+            transform: scale(1.1) rotate(2deg) !important;
+            z-index: 50 !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
     </style>
 </head>
 <body class="pt-8 md:pt-12 p-4 md:p-8 relative">
@@ -247,12 +289,21 @@
     <div class="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-pink-500/8 blur-[120px] pointer-events-none z-0"></div>
     <div class="fixed top-[40%] left-[60%] w-[35vw] h-[35vw] rounded-full bg-cyan-500/6 blur-[100px] pointer-events-none z-0"></div>
 
+    <!-- Washed-out desaturated memory background collage (Interactive & Clickable) -->
+    <div id="bg-mem-1" class="bg-memory-card top-[15%] left-[3%] w-[320px] h-[320px]" style="background-image: url('assets/show 1.jpg');" onclick="openLightbox('assets/show 1.jpg', 'Tour Memory: Show Photo 1')"></div>
+    <div id="bg-mem-2" class="bg-memory-card top-[15%] right-[3%] w-[320px] h-[320px]" style="background-image: url('assets/show 2.jpg');" onclick="openLightbox('assets/show 2.jpg', 'Tour Memory: Show Photo 2')"></div>
+    <div id="bg-mem-3" class="bg-memory-card bottom-[15%] left-[3%] w-[380px] h-[285px]" style="background-image: url('assets/Dinner and Movie.png');" onclick="openLightbox('assets/Dinner and Movie.png', 'Tour Memory: Dinner and a Movie')"></div>
+    <div id="bg-mem-4" class="bg-memory-card bottom-[15%] right-[3%] w-[320px] h-[240px]" style="background-image: url('assets/Tickets.JPG');" onclick="openLightbox('assets/Tickets.JPG', 'Tour Memory: Ticket Stubs Collection')"></div>
+    
+    <!-- Centered faint Black and White Logo watermark -->
+    <div class="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] w-[80vw] h-[80vw] max-w-[500px] max-h-[500px] opacity-[0.015] pointer-events-none z-0 filter invert grayscale" style="background-image: url('assets/Black and White logo.JPG'); background-size: contain; background-repeat: no-repeat; background-position: center;"></div>
+
     <!-- App Container -->
     <div class="max-w-7xl mx-auto space-y-8 relative z-10">
         
         <!-- Header Section -->
         <header class="text-center flex flex-col items-center justify-center space-y-4">
-            <img src="assets/phish_logo.png" alt="Phish Logo" class="w-20 h-20 md:w-24 md:h-24 rounded-full border border-white/10 glow-logo">
+            <img src="assets/Color logo.jpg" alt="Phish Logo" class="w-20 h-20 md:w-24 md:h-24 rounded-full border border-white/10 glow-logo">
             <div class="space-y-2">
                 <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">
                     Curtis Smith's Phish Tour Tracker & Spatial Footprint
@@ -1033,6 +1084,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             }
 
             refreshAll();
+            startAmbientHighlightLoop();
         };
 
         // Initialize Dark Leaflet Map
@@ -1674,7 +1726,7 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             const ocrImg = document.getElementById('ocr-mock-img');
 
             // Set placeholder sample ticket
-            ocrImg.src = "https://placehold.co/600x350/111827/34d399?text=PHISH+STUB+1998+LAS+VEGAS";
+            ocrImg.src = "assets/Tickets.JPG";
             placeholder.classList.add('hidden');
             container.classList.remove('hidden');
 
@@ -1817,6 +1869,81 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // Ambient Background Memory Highlights Loop
+        function startAmbientHighlightLoop() {
+            const memories = [
+                { id: 'bg-mem-1' },
+                { id: 'bg-mem-2' },
+                { id: 'bg-mem-3' },
+                { id: 'bg-mem-4' }
+            ];
+            
+            let currentIndex = 0;
+            
+            setInterval(() => {
+                // 1. Reset all memories to default state
+                memories.forEach(m => {
+                    const el = document.getElementById(m.id);
+                    if (el) {
+                        el.style.opacity = "0.05";
+                        el.style.filter = "grayscale(100%) blur(1px)";
+                        el.style.transform = "scale(1)";
+                        el.style.zIndex = "1";
+                    }
+                });
+                
+                // 2. Select next memory and highlight it (pop up slightly)
+                const active = memories[currentIndex];
+                const activeEl = document.getElementById(active.id);
+                if (activeEl) {
+                    activeEl.style.opacity = "0.22"; // Make it visible
+                    activeEl.style.filter = "grayscale(30%) blur(0px)"; // Bring back color
+                    activeEl.style.transform = "scale(1.05) translateY(-5px)"; // Pop up zoom/lift
+                    activeEl.style.zIndex = "5"; // Bring slightly forward
+                }
+                
+                currentIndex = (currentIndex + 1) % memories.length;
+            }, 10000); // cycle every 10 seconds
+        }
+
+        // Lightbox modal handlers
+        function openLightbox(imgSrc, title) {
+            let lb = document.getElementById('memory-lightbox');
+            if (!lb) {
+                lb = document.createElement('div');
+                lb.id = 'memory-lightbox';
+                lb.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex flex-col items-center justify-center p-4 cursor-pointer hidden transition-opacity duration-300 opacity-0';
+                lb.onclick = closeLightbox;
+                
+                lb.innerHTML = `
+                    <div class="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center pointer-events-auto">
+                        <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain rounded-lg border border-white/10 shadow-2xl">
+                        <span id="lightbox-caption" class="text-gray-300 font-semibold mt-4 text-sm font-mono bg-black/60 px-3 py-1.5 rounded-full border border-white/5"></span>
+                        <button onclick="closeLightbox()" class="absolute top-[-45px] right-0 text-white hover:text-pink-400 text-2xl focus:outline-none transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+                document.body.appendChild(lb);
+            }
+            
+            document.getElementById('lightbox-img').src = imgSrc;
+            document.getElementById('lightbox-caption').textContent = title;
+            
+            lb.classList.remove('hidden');
+            setTimeout(() => {
+                lb.classList.remove('opacity-0');
+            }, 50);
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('memory-lightbox');
+            if (lb) {
+                lb.classList.add('opacity-0');
+                setTimeout(() => {
+                    lb.classList.add('hidden');
+                }, 300);
+            }
         }
     </script>
 </body>
