@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curtis Smith's Phish Tour Tracker & Spatial Footprint</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0a0616;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 15%, rgba(6, 182, 212, 0.1) 0%, transparent 35%);
+            background-attachment: fixed;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 6, 22, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(236, 72, 153, 0.6);
+        }
+        /* Glassmorphism for all standard panels */
+        .bg-gray-900, .lg\:col-span-3, .bg-gray-850 {
+            background: rgba(18, 12, 36, 0.45) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25) !important;
+            border-radius: 20px !important;
+        }
+        /* Leaflet Map style overrides */
+        #map {
+            height: 480px;
+            border-radius: 16px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .leaflet-container {
+            background-color: #0a0616 !important;
+        }
+        /* Custom Pulse Marker Animation for Map Pins */
+        .emerald-pulse-marker {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: pulse-marker 1.8s infinite;
+        }
+        @keyframes pulse-marker {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+            }
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 8px rgba(168, 85, 247, 0);
+            }
+            100% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+            }
+        }
+        /* Laser scanning effect for mock OCR tab */
+        .scan-laser {
+            background: linear-gradient(to bottom, rgba(236, 72, 153, 0), rgba(236, 72, 153, 0.8) 50%, rgba(236, 72, 153, 0) 100%);
+            animation: scan 2s infinite ease-in-out;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        /* Accordion transition animations */
+        .setlist-dropdown-content {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Titles & typography */
+        h1 {
+            background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900 !important;
+            letter-spacing: -0.02em !important;
+        }
+        h2, h3, h4 {
+            font-weight: 700 !important;
+            color: #f3f4f6 !important;
+        }
+        /* Override generic text colors to blend with dark sky theme */
+        .text-emerald-400 {
+            color: #22d3ee !important; /* light cyan */
+        }
+        .text-emerald-500 {
+            color: #a78bfa !important; /* light violet */
+        }
+        /* Metric values neon glow */
+        #metric-attended, #metric-percentage, #metric-rating {
+            color: #22d3ee !important;
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.35);
+        }
+        #metric-milestones {
+            color: #f472b6 !important;
+            text-shadow: 0 0 8px rgba(244, 114, 182, 0.35);
+        }
+        /* Input & Form Styling */
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
+            color: #f3f4f6 !important;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #a78bfa !important;
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25) !important;
+            outline: none !important;
+        }
+        /* Buttons styling */
+        button.bg-emerald-600, button.bg-emerald-700 {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25) !important;
+            transition: all 0.3s ease !important;
+            color: #ffffff !important;
+        }
+        button.bg-emerald-600:hover, button.bg-emerald-700:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.45) !important;
+        }
+        button.bg-red-900\/30 {
+            background: rgba(239, 68, 68, 0.12) !important;
+            border: 1px solid rgba(239, 68, 68, 0.25) !important;
+            color: #fca5a5 !important;
+            border-radius: 12px !important;
+            transition: all 0.2s ease;
+        }
+        button.bg-red-900\/30:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+        }
+        /* Tab styling */
+        .border-b.border-gray-800 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        #tab-btn-bulk, #tab-btn-ocr, #tab-btn-manual {
+            color: #9ca3af !important;
+            transition: all 0.3s ease;
+        }
+        #tab-btn-bulk.text-emerald-400, 
+        #tab-btn-ocr.text-emerald-400, 
+        #tab-btn-manual.text-emerald-400 {
+            color: #f472b6 !important;
+            border-bottom: 2px solid #f472b6 !important;
+        }
+        #tab-btn-bulk:hover, #tab-btn-ocr:hover, #tab-btn-manual:hover {
+            color: #e5e7eb !important;
+        }
+        /* Tables & Grid styling */
+        thead.bg-gray-800\/80 {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+            transition: all 0.2s ease;
+        }
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02) !important;
+        }
+        tbody tr.bg-gray-850 {
+            background: rgba(168, 85, 247, 0.06) !important;
+        }
+        /* Setlist highlights in expanded rows */
+        .bg-gray-900\/60 {
+            background: rgba(10, 6, 22, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+        /* Milestone chips */
+        .bg-yellow-950\/80, .bg-yellow-900\/40 {
+            background: rgba(245, 158, 11, 0.12) !important;
+            border: 1px solid rgba(245, 158, 11, 0.2) !important;
+            color: #f59e0b !important;
+        }
+        .bg-gray-800 {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            color: #d1d5db !important;
+        }
+        .text-yellow-500 {
+            color: #fbbf24 !important;
+        }
+        /* Phish Theme elements */
+        .fishman-donuts {
+            background-color: #0b5fa5;
+            background-image: 
+                radial-gradient(circle, transparent 15%, #ef4444 16%, #ef4444 32%, transparent 33%),
+                radial-gradient(circle, transparent 15%, #ef4444 16%, #ef4444 32%, transparent 33%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .glow-logo {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glow-logo:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.65);
+        }
+    </style>
+</head>
+<body class="pt-8 md:pt-12 p-4 md:p-8 relative">
+
+    <!-- Top Fishman Donut accent bar -->
+    <div class="fishman-donuts h-3.5 w-full fixed top-0 left-0 z-[9999] border-b border-black/25"></div>
+
+    <!-- Decorative blurred background clouds -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-500/8 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-pink-500/8 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed top-[40%] left-[60%] w-[35vw] h-[35vw] rounded-full bg-cyan-500/6 blur-[100px] pointer-events-none z-0"></div>
+
+    <!-- App Container -->
+    <div class="max-w-7xl mx-auto space-y-8 relative z-10">
+        
+        <!-- Header Section -->
+        <header class="text-center flex flex-col items-center justify-center space-y-4">
+            <img src="assets/phish_logo.png" alt="Phish Logo" class="w-20 h-20 md:w-24 md:h-24 rounded-full border border-white/10 glow-logo">
+            <div class="space-y-2">
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">
+                    Curtis Smith's Phish Tour Tracker & Spatial Footprint
+                </h1>
+                <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
+                    An Elite Personal Concert Memory Dashboard & Map. Explore your touring history, click shows in the archive grid to view **expanded setlists**, and manage ticket records.
+                </p>
+            </div>
+        </header>
+
+        <!-- Metrics Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                <div id="metric-attended" class="text-3xl font-extrabold text-emerald-400">0</div>
+                <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Shows Attended</div>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                <div id="metric-percentage" class="text-3xl font-extrabold text-emerald-400">0.00%</div>
+                <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Of Historical Played (2056)</div>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                <div id="metric-rating" class="text-3xl font-extrabold text-emerald-400">⭐ 0.00</div>
+                <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Avg Show Community Rating</div>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                <div id="metric-milestones" class="text-3xl font-extrabold text-yellow-500">🔥 0</div>
+                <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Milestones & Festivals</div>
+            </div>
+        </div>
+
+        <!-- Interactive Map and Selected Venue Vault Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-8 gap-6">
+            
+            <!-- Map Container (5 cols) -->
+            <div class="lg:col-span-5 bg-gray-900 border border-gray-800 rounded-xl p-4 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-emerald-400">
+                        <i class="fa-solid fa-map-location-dot mr-2"></i>Interactive Tour Spatial Footprint
+                    </h2>
+                    <span class="text-xs bg-gray-800 text-gray-400 px-2.5 py-1 rounded-full border border-gray-700">
+                        Map markers scale with frequency
+                    </span>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- Selected Venue Sidebar Container (3 cols) -->
+            <div class="lg:col-span-3 bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl flex flex-col justify-between min-h-[480px]">
+                <div class="space-y-4">
+                    <div class="border-b border-gray-800 pb-3">
+                        <h3 class="text-lg font-extrabold text-emerald-400 flex items-center">
+                            <i class="fa-solid fa-landmark mr-2"></i>Venue Setlist Vault
+                        </h3>
+                        <p class="text-xs text-gray-500">Select a map pin or pick from the list below</p>
+                    </div>
+
+                    <!-- Dropdown selector for easy touch interaction -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Pick a Venue:</label>
+                        <select id="vault-venue-selector" onchange="onSelectorVenueChange(this.value)" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200">
+                            <!-- Populated via Javascript -->
+                        </select>
+                    </div>
+
+                    <!-- Selected Venue Info Display -->
+                    <div id="vault-display-area" class="space-y-4 pt-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-800 mt-4 text-center">
+                    <p class="text-[11px] text-gray-500 italic">Historical data sourced from community rating aggregates.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Charting & Statistics Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Era Breakdown -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-lg space-y-4">
+                <h3 class="text-md font-bold text-emerald-400 text-center flex items-center justify-center">
+                    <i class="fa-solid fa-chart-pie mr-2"></i>Phish Era Attended Breakdown
+                </h3>
+                <div class="h-64 flex justify-center items-center">
+                    <canvas id="eraChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Venues -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-lg space-y-4">
+                <h3 class="text-md font-bold text-emerald-400 text-center flex items-center justify-center">
+                    <i class="fa-solid fa-ranking-star mr-2"></i>Top Visited Venues
+                </h3>
+                <div class="h-64 flex justify-center items-center">
+                    <canvas id="venueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Input Pipelines Tabs Container -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-emerald-400 mb-4 flex items-center">
+                <i class="fa-solid fa-file-import mr-2"></i>Interactive Show Input Pipelines
+            </h3>
+
+            <!-- Tab Headers -->
+            <div class="flex border-b border-gray-800 gap-1 overflow-x-auto">
+                <button onclick="switchTab('bulk')" id="tab-btn-bulk" class="py-2.5 px-4 text-sm font-medium border-b-2 border-emerald-500 text-emerald-400 whitespace-nowrap focus:outline-none">
+                    <i class="fa-solid fa-list mr-1.5"></i>Bulk Parsing Parser
+                </button>
+                <button onclick="switchTab('ocr')" id="tab-btn-ocr" class="py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 hover:border-emerald-500 whitespace-nowrap focus:outline-none">
+                    <i class="fa-solid fa-camera mr-1.5"></i>Ticket Stub OCR Scanner
+                </button>
+                <button onclick="switchTab('manual')" id="tab-btn-manual" class="py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 hover:border-emerald-500 whitespace-nowrap focus:outline-none">
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>Manual Show Form
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="pt-6">
+                
+                <!-- Tab: Bulk Parsing -->
+                <div id="tab-content-bulk" class="space-y-4">
+                    <p class="text-xs text-gray-400">
+                        Paste tour log listings below. The parser extracts single dates or splits ranges like <strong class="text-emerald-400">"August 16–17, 1997: The Great Went"</strong> into multiple distinct day entries. Matches venue history automatically!
+                    </p>
+                    <textarea id="bulk-input-area" rows="10" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200"></textarea>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="processBulkText()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-5 rounded-lg text-sm transition-all shadow-md flex items-center">
+                            <i class="fa-solid fa-play mr-2"></i>Process & Add Shows
+                        </button>
+                        <button onclick="resetToSeeds()" class="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-800 font-semibold py-2 px-4 rounded-lg text-xs transition-all">
+                            <i class="fa-solid fa-trash-can mr-1.5"></i>Wipe & Reload Default Seeds
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab: Stub OCR -->
+                <div id="tab-content-ocr" class="hidden space-y-6">
+                    <p class="text-xs text-gray-400">
+                        Simulate an advanced computer-vision ticketing system. Upload any concert receipt or ticket stub file, run mock AI detection bounding boxes, and confirm the show metadata details before archiving.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Left Mock upload slot -->
+                        <div class="md:col-span-5 bg-gray-800/40 border-2 border-dashed border-gray-700 rounded-xl p-6 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[250px]">
+                            
+                            <!-- Static Image Showcase with Scanner overlay -->
+                            <div id="ocr-mock-img-container" class="hidden w-full h-full absolute inset-0 bg-black">
+                                <img id="ocr-mock-img" src="" class="w-full h-full object-cover opacity-60">
+                                <!-- OCR Scan Laser Line -->
+                                <div id="ocr-scanner-laser" class="absolute left-0 w-full h-1 bg-emerald-500 scan-laser shadow-[0_0_10px_#10B981]"></div>
+                                <!-- Canvas Bounding Boxes -->
+                                <div class="absolute top-[20%] left-[10%] w-[80%] h-[15%] border-2 border-red-500 rounded bg-red-500/10 flex items-center justify-center">
+                                    <span class="text-[10px] text-red-300 bg-black/80 px-1 py-0.5 rounded font-mono">DATE MATCH (98.2%)</span>
+                                </div>
+                                <div class="absolute top-[45%] left-[15%] w-[70%] h-[15%] border-2 border-cyan-400 rounded bg-cyan-400/10 flex items-center justify-center">
+                                    <span class="text-[10px] text-cyan-300 bg-black/80 px-1 py-0.5 rounded font-mono">VENUE DETECT (94.1%)</span>
+                                </div>
+                            </div>
+
+                            <div id="ocr-upload-placeholder" class="space-y-4">
+                                <i class="fa-solid fa-file-image text-4xl text-gray-600"></i>
+                                <div class="space-y-1">
+                                    <p class="text-sm font-semibold text-gray-300">Click to Select mock ticket stub</p>
+                                    <p class="text-[11px] text-gray-500">Supports PNG, JPG (Simulated Scanning Overlay)</p>
+                                </div>
+                                <button onclick="triggerMockStubScan()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-semibold py-1.5 px-3 rounded-lg text-xs transition-all">
+                                    Load Sample stub image
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right form validation slot -->
+                        <div class="md:col-span-7 bg-gray-850 border border-gray-800 rounded-xl p-5 space-y-4">
+                            <h4 class="text-sm font-bold text-emerald-400 flex items-center">
+                                <i class="fa-solid fa-receipt mr-1.5"></i>OCR Real-Time Bounding Boxes:
+                            </h4>
+
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-500 mb-1">Extracted Date:</label>
+                                    <input type="date" id="ocr-field-date" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-500 mb-1">Confidence Score:</label>
+                                    <input type="text" id="ocr-field-conf" readonly value="Not scanned" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-emerald-400 font-mono font-bold">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[11px] font-semibold text-gray-500 mb-1">Standardized Venue Name:</label>
+                                    <input type="text" id="ocr-field-venue" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[11px] font-semibold text-gray-500 mb-1">Venue City & State Location:</label>
+                                    <input type="text" id="ocr-field-city" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[11px] font-semibold text-gray-500 mb-1">Concert Notes / Highlights:</label>
+                                    <input type="text" id="ocr-field-notes" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                                </div>
+                            </div>
+
+                            <button onclick="commitOcrShow()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-all mt-2">
+                                <i class="fa-solid fa-circle-check mr-1.5"></i>Confirm & Insert into Tour Vault
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Manual Entry -->
+                <div id="tab-content-manual" class="hidden">
+                    <p class="text-xs text-gray-400 mb-4">
+                        Add a missing single concert memory to your relational database storage system manually.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Concert Date:</label>
+                            <input type="date" id="man-field-date" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Concert Venue:</label>
+                            <select id="man-field-venue-select" onchange="fillManualVenueInfo(this.value)" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                                <option value="">-- Custom / Not Listed --</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Custom Venue Name (If not listed above):</label>
+                            <input type="text" id="man-field-venue-custom" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">City, State:</label>
+                            <input type="text" id="man-field-city" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-3 text-gray-200">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Concert Memories & Setlist Notes:</label>
+                            <textarea id="man-field-notes" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-xs text-gray-200"></textarea>
+                        </div>
+                    </div>
+                    <button onclick="commitManualShow()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg text-xs mt-4 transition-all">
+                        <i class="fa-solid fa-save mr-1.5"></i>Save Show Entry
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Concert Table Grid & CSV Downloader -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-emerald-400">
+                        <i class="fa-solid fa-box-archive mr-2"></i>Concert Archive & Grid Records
+                    </h3>
+                    <p class="text-xs text-gray-500">Click anywhere on a show row to expand/collapse the **Setlist Dropdown**.</p>
+                </div>
+                <!-- Action Controls -->
+                <button onclick="downloadCSV()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-1.5 px-4 rounded-lg text-xs flex items-center self-start md:self-auto transition-all">
+                    <i class="fa-solid fa-download mr-1.5"></i>Download Complete Dataset as CSV
+                </button>
+            </div>
+
+            <!-- Table Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="relative">
+                    <input type="text" id="grid-search" oninput="renderTable()" placeholder="🔍 Search by Venue, City, or Notes..." class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+                </div>
+                <div>
+                    <select id="grid-era-filter" onchange="renderTable()" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200">
+                        <option value="All">All Eras</option>
+                        <option value="1.0">1.0 (1983-2000)</option>
+                        <option value="2.0">2.0 (2002-2004)</option>
+                        <option value="3.0">3.0 (2009-2020)</option>
+                        <option value="4.0">4.0 (2021+)</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="grid-milestone-filter" onchange="renderTable()" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200">
+                        <option value="All">All Entry Types</option>
+                        <option value="Milestones">Milestones & Festivals Only</option>
+                        <option value="Standard">Standard Shows Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Responsive Table Grid -->
+            <div class="overflow-x-auto border border-gray-800 rounded-lg">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="bg-gray-800/80 text-gray-400 font-semibold border-b border-gray-800 uppercase text-[10px] tracking-wider">
+                        <tr>
+                            <th class="py-3 px-2 text-center w-8"></th>
+                            <th class="py-3 px-4">Date</th>
+                            <th class="py-3 px-4">Venue</th>
+                            <th class="py-3 px-4">Location</th>
+                            <th class="py-3 px-4">Rating</th>
+                            <th class="py-3 px-4">Era</th>
+                            <th class="py-3 px-4">Type</th>
+                            <th class="py-3 px-4">Concert Memories / Notes</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="concert-table-body" class="divide-y divide-gray-800">
+                        <!-- Populated via javascript database loop -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Global variables for databases & map instances
+        let shows = [];
+        let mapInstance = null;
+        let mapMarkersGroup = null;
+        let eraChartInstance = null;
+        let venueChartInstance = null;
+        let expandedShows = {}; // Track expanded setlist states
+
+        // Static high-fidelity venue coordinates lookup (matches Python setup)
+        const VENUE_DB = {
+            "Bogart's": {
+                coords: [39.1294, -84.5090],
+                standard_name: "Bogart's",
+                city: "Cincinnati, OH",
+                avg_rating: 4.15,
+                setlist_highlight: "Set II: Wilson > Divided Sky, Split Open and Melt, The Squirming Coil, Llama",
+                top_jams: ["Split Open and Melt (12/03/92)", "Harry Hood (12/03/92)"]
+            },
+            "Peacock Pavilion, Cincinnati Zoo": {
+                coords: [39.1432, -84.5090],
+                standard_name: "Peacock Pavilion, Cincinnati Zoo",
+                city: "Cincinnati, OH",
+                avg_rating: 4.42,
+                setlist_highlight: "Set II: Chalk Dust Torture, Reba, Slave to the Traffic Light, Antelope",
+                top_jams: ["Reba (08/06/93)", "Slave to the Traffic Light (08/06/93)"]
+            },
+            "World Music Theatre": {
+                coords: [41.5642, -87.7772],
+                standard_name: "World Music Theatre",
+                city: "Tinley Park, IL",
+                avg_rating: 4.61,
+                setlist_highlight: "Set II: Purple Rain, Run Like an Antelope, You Enjoy Myself, AC/DC Bag",
+                top_jams: ["Run Like an Antelope (08/14/93)", "You Enjoy Myself (08/08/97)"]
+            },
+            "New World Music Theatre": {
+                coords: [41.5642, -87.7772],
+                standard_name: "World Music Theatre",
+                city: "Tinley Park, IL",
+                avg_rating: 4.61,
+                setlist_highlight: "Set II: Bathtub Gin -> Gumbo, You Enjoy Myself",
+                top_jams: ["You Enjoy Myself (08/08/97)", "Gumbo (08/08/97)"]
+            },
+            "Centrum in Worcester": {
+                coords: [42.2642, -71.7981],
+                standard_name: "Worcester Centrum",
+                city: "Worcester, MA",
+                avg_rating: 4.88,
+                setlist_highlight: "Set II: Peaches en Regalia, David Bowie, Harry Hood, Down with Disease Jam",
+                top_jams: ["Harry Hood (12/31/93)", "Down with Disease (12/31/93)"]
+            },
+            "Nautica Stage": {
+                coords: [41.4983, -81.7051],
+                standard_name: "Nautica Stage",
+                city: "Cleveland, OH",
+                avg_rating: 4.38,
+                setlist_highlight: "Set II: Mike's Song > Simple > Catapult > Hydrogen > Weekapaug Groove",
+                top_jams: ["Mike's Song (06/25/94)", "Simple (06/25/94)"]
+            },
+            "KSU Mac Center": {
+                coords: [41.1478, -81.3415],
+                standard_name: "KSU MAC Center",
+                city: "Kent, OH",
+                avg_rating: 4.52,
+                setlist_highlight: "Set II: Maze, Sparkle, Simple, Harry Hood, Julius",
+                top_jams: ["Simple (11/12/94)", "Harry Hood (11/12/94)"]
+            },
+            "Hara Arena": {
+                coords: [39.8164, -84.2372],
+                standard_name: "Hara Arena",
+                city: "Dayton, OH",
+                avg_rating: 4.65,
+                setlist_highlight: "Set II: Tweezer -> Jam > Run Like an Antelope",
+                top_jams: ["Tweezer (11/17/94)"]
+            },
+            "Hera Arena": {
+                coords: [39.8164, -84.2372],
+                standard_name: "Hara Arena",
+                city: "Dayton, OH",
+                avg_rating: 4.65,
+                setlist_highlight: "Set II: Tweezer -> Jam > Run Like an Antelope",
+                top_jams: ["Tweezer (11/17/94)"]
+            },
+            "UIC Pavilion": {
+                coords: [41.8752, -87.6565],
+                standard_name: "UIC Pavilion",
+                city: "Chicago, IL",
+                avg_rating: 4.75,
+                setlist_highlight: "Set II: Tweezer > Contact > Tweezer Reprise, Chalk Dust Torture, Ghost",
+                top_jams: ["Tweezer (11/25/94)", "Ghost (11/08/98)", "Carini (11/08/98)"]
+            },
+            "Deer Creek Music Center": {
+                coords: [40.0052, -85.9311],
+                standard_name: "Deer Creek Music Center",
+                city: "Noblesville, IN",
+                avg_rating: 4.78,
+                setlist_highlight: "Set II: Theme From the Bottom > Reba, AC/DC Bag, Runaway Jim, Gumbo",
+                top_jams: ["Reba (06/19/95)", "Gumbo (08/13/96)", "Halley's Comet (08/10/97)"]
+            },
+            "Klipsch Music Center": {
+                coords: [40.0052, -85.9311],
+                standard_name: "Deer Creek Music Center",
+                city: "Noblesville, IN",
+                avg_rating: 4.72,
+                setlist_highlight: "Set II: Down with Disease > Carini > Twist, Fluffhead",
+                top_jams: ["Down with Disease (06/26/16)", "Runaway Jim (06/26/16)"]
+            },
+            "Blossom Music Center": {
+                coords: [41.1908, -81.5583],
+                standard_name: "Blossom Music Center",
+                city: "Cuyahoga Falls, OH",
+                avg_rating: 4.45,
+                setlist_highlight: "Set II: Run Like an Antelope, Contact, Possum, Mike's Song",
+                top_jams: ["Run Like an Antelope (06/20/95)", "Mike's Song (06/20/95)"]
+            },
+            "Rosemont Horizon": {
+                coords: [42.0072, -87.8895],
+                standard_name: "Allstate Arena / Rosemont Horizon",
+                city: "Rosemont, IL",
+                avg_rating: 4.93,
+                setlist_highlight: "Set II: Full performance of The Who's 'Quadrophenia' (Halloween costume!)",
+                top_jams: ["Drowned (10/31/95)", "You Enjoy Myself (10/31/95)", "Harpua (10/31/95)"]
+            },
+            "Ervin J. Nutter Center": {
+                coords: [39.7806, -84.0628],
+                standard_name: "Ervin J. Nutter Center",
+                city: "Dayton, OH",
+                avg_rating: 4.89,
+                setlist_highlight: "Set II: AC/DC Bag > Psycho Killer > Jesus Just Left Chicago, Tube Jam",
+                top_jams: ["AC/DC Bag (12/07/97)", "Psycho Killer (12/07/97)", "Tweezer (11/30/95)"]
+            },
+            "Alpine Valley Music Theatre": {
+                coords: [42.7411, -88.4286],
+                standard_name: "Alpine Valley Music Theatre",
+                city: "East Troy, WI",
+                avg_rating: 4.65,
+                setlist_highlight: "Set II: Fluffhead, Tweezer > Down with Disease > Piper, Catapult",
+                top_jams: ["Down with Disease (08/10/96)", "Tweezer (07/24/99)"]
+            },
+            "The Great Went": {
+                coords: [46.9472, -67.8847],
+                standard_name: "Loring Air Force Base",
+                city: "Limestone, ME",
+                avg_rating: 4.91,
+                setlist_highlight: "Set II: Halley's Comet > Cities > Llama, legendary 20-min Bathtub Gin",
+                top_jams: ["Bathtub Gin (08/17/97)", "Halley's Comet (08/16/97)"]
+            },
+            "CSU Convocation Center": {
+                coords: [41.5020, -81.6750],
+                standard_name: "Wolstein Center (CSU)",
+                city: "Cleveland, OH",
+                avg_rating: 4.58,
+                setlist_highlight: "Set II: Ghost > Tweezer Reprise, Loving Cup, Julius",
+                top_jams: ["Ghost (12/05/97)", "Julius (12/05/97)"]
+            },
+            "The Palace of Auburn Hills": {
+                coords: [42.6969, -83.2458],
+                standard_name: "The Palace of Auburn Hills",
+                city: "Auburn Hills, MI",
+                avg_rating: 4.62,
+                setlist_highlight: "Set II: Tweezer > Izabella, Twist, Piper",
+                top_jams: ["Tweezer (12/06/97)", "Izabella (12/06/97)"]
+            },
+            "Polaris Amphitheater": {
+                coords: [40.1444, -82.9772],
+                standard_name: "Polaris Amphitheater",
+                city: "Columbus, OH",
+                avg_rating: 4.29,
+                setlist_highlight: "Set II: Mike's Song > Simple > Ghost > Weekapaug Groove",
+                top_jams: ["Ghost (07/31/98)", "Mike's Song (07/31/98)"]
+            },
+            "Kohl Center": {
+                coords: [43.0699, -89.4011],
+                standard_name: "Kohl Center",
+                city: "Madison, WI",
+                avg_rating: 4.48,
+                setlist_highlight: "Set II: Carini > Chalk Dust Torture, Runaway Jim, Velvet Sea",
+                top_jams: ["Carini (11/06/98)", "Runaway Jim (11/06/98)"]
+            },
+            "Thomas & Mack Center": {
+                coords: [36.1025, -115.1436],
+                standard_name: "Thomas & Mack Center",
+                city: "Las Vegas, NV",
+                avg_rating: 4.54,
+                setlist_highlight: "Set II: Sand > Ghost, Piper, You Enjoy Myself, Camel Walk",
+                top_jams: ["Sand (09/29/00)", "Ghost (09/29/00)", "Piper (02/16/03)"]
+            },
+            "Desert Sky Pavilion": {
+                coords: [33.4611, -112.2131],
+                standard_name: "Desert Sky Pavilion / Ak-Chin",
+                city: "Phoenix, AZ",
+                avg_rating: 4.31,
+                setlist_highlight: "Set II: Piper > Twist, Camel Walk, Run Like an Antelope",
+                top_jams: ["Piper (10/01/00)", "Twist (10/01/00)"]
+            },
+            "Cricket Pavilion": {
+                coords: [33.4611, -112.2131],
+                standard_name: "Desert Sky Pavilion / Ak-Chin",
+                city: "Phoenix, AZ",
+                avg_rating: 4.31,
+                setlist_highlight: "Set II: Piper > Twist, Camel Walk, Run Like an Antelope",
+                top_jams: ["Piper (10/01/00)", "Twist (10/01/00)"]
+            },
+            "Ak-Chin Pavilion": {
+                coords: [33.4611, -112.2131],
+                standard_name: "Desert Sky Pavilion / Ak-Chin",
+                city: "Phoenix, AZ",
+                avg_rating: 4.31,
+                setlist_highlight: "Set II: Piper > Twist, Camel Walk, Run Like an Antelope",
+                top_jams: ["Piper (10/01/00)", "Twist (10/01/00)"]
+            },
+            "The Forum": {
+                coords: [33.9583, -118.3419],
+                standard_name: "The Forum",
+                city: "Inglewood, CA",
+                avg_rating: 4.41,
+                setlist_highlight: "Set II: Down with Disease > Fee > Golden Age > Tweezer",
+                top_jams: ["Tweezer (02/14/03)", "Down with Disease (02/14/03)"]
+            },
+            "Coors Amphitheatre": {
+                coords: [32.5886, -116.9800],
+                standard_name: "Chula Vista Amphitheatre",
+                city: "Chula Vista, CA",
+                avg_rating: 4.35,
+                setlist_highlight: "Set II: You Enjoy Myself, Harpua, Runaway Jim, Tube",
+                top_jams: ["You Enjoy Myself (07/08/03)", "Tube (07/08/03)"]
+            },
+            "Sleep Train Amphitheatre": {
+                coords: [32.5886, -116.9800],
+                standard_name: "Chula Vista Amphitheatre",
+                city: "Chula Vista, CA",
+                avg_rating: 4.35,
+                setlist_highlight: "Set II: You Enjoy Myself, Harpua, Runaway Jim, Tube",
+                top_jams: ["You Enjoy Myself (07/08/03)", "Tube (07/08/03)"]
+            },
+            "Shoreline Amphitheatre": {
+                coords: [37.4267, -122.0800],
+                standard_name: "Shoreline Amphitheatre",
+                city: "Mountain View, CA",
+                avg_rating: 4.51,
+                setlist_highlight: "Set II: Tweezer > Harry Hood, Mike's Song > Hydrogen > Weekapaug",
+                top_jams: ["Tweezer (07/09/03)", "Harry Hood (07/10/03)"]
+            },
+            "Festival 8": {
+                coords: [33.6797, -116.2356],
+                standard_name: "Empire Polo Club (Festival 8)",
+                city: "Indio, CA",
+                avg_rating: 4.67,
+                setlist_highlight: "Set II: Acoustic set on Sunday morning, Exile on Main Street set",
+                top_jams: ["Loving Cup (10/31/09)", "Suzy Greenberg (11/01/09)"]
+            },
+            "Empire Polo Club": {
+                coords: [33.6797, -116.2356],
+                standard_name: "Empire Polo Club (Festival 8)",
+                city: "Indio, CA",
+                avg_rating: 4.67,
+                setlist_highlight: "Set II: Acoustic set on Sunday morning, Exile on Main Street set",
+                top_jams: ["Loving Cup (10/31/09)", "Suzy Greenberg (11/01/09)"]
+            },
+            "Wrigley Field": {
+                coords: [41.9484, -87.6553],
+                standard_name: "Wrigley Field",
+                city: "Chicago, IL",
+                avg_rating: 4.38,
+                setlist_highlight: "Set II: Down with Disease > Carini > Twist, Fluffhead",
+                top_jams: ["Twist (06/24/16)", "Down with Disease (06/25/16)"]
+            }
+        };
+
+        // Dedicated High-Fidelity Historic Setlists
+        const HISTORIC_SETLISTS = {
+            "1995-10-31": {
+                set1: "Icculus, Divided Sky, Wilson, Ya Mar, Sparkle, Free, Guyute, Run Like an Antelope",
+                set2: "I Am the Sea, The Real Me, Quadrophenia, Cut My Hair, The Punk and the Godfather, I'm One, The Dirty Jobs, Helpless Dancer, Is It in My Head?, I've Had Enough, 5:15, Sea and Sand, Drowned, Bell Boy, Doctor Jimmy, The Rock, Love Reign o'er Me (Complete 'Quadrophenia' Album)",
+                set3: "You Enjoy Myself, Jesus Just Left Chicago, A Day in the Life",
+                encore: "My Generation"
+            },
+            "1997-08-16": {
+                set1: "Chalk Dust Torture, Bathtub Gin, Punch You in the Eye, Dirt, Limb By Limb, Character Zero",
+                set2: "Theme From the Bottom > Ghost -> Gimme Some Lovin' -> Harry Hood",
+                set3: "Cities > Tweezer -> Make Your Own Album Jam, Simple > Loving Cup",
+                encore: "Bouncing Around the Room > Tweezer Reprise"
+            },
+            "1997-08-17": {
+                set1: "The Wedge, Beauty of My Swamp, Foam, Gumbo > Reba, Split Open and Melt",
+                set2: "Down with Disease -> Bathtub Gin -> Uncle Pen, 2001 > Art Jam > Harry Hood",
+                set3: "Buffalo Bill -> Nicodemus, Bowies, Tweezer Reprise",
+                encore: "Bouncing Around the Room, Tweezer Reprise"
+            },
+            "1993-12-31": {
+                set1: "Llama, Guelah Papyrus, Reba, Sparkle, Split Open and Melt, Esther, Chalk Dust Torture",
+                set2: "Peaches en Regalia > Mound > Run Like an Antelope, Down with Disease Jam > You Enjoy Myself",
+                set3: "Tweezer > Halley's Comet > Poor Heart, Baby Lemonade, Grid, Harry Hood",
+                encore: "Good Times Bad Times"
+            },
+            "1992-12-03": {
+                set1: "Loving Cup, Rift, Split Open and Melt, Sparkle, The Squirming Coil",
+                set2: "Wilson > Divided Sky, Mound, It's Ice, Harry Hood",
+                set3: "",
+                encore: "Sweet Adeline, Llama"
+            }
+        };
+
+        // Song lists for high-fidelity fallback generation
+        const SONGS_SET_1 = ["Chalk Dust Torture", "Sample in a Jar", "Divided Sky", "The Squirming Coil", "Maze", "Sparkle", "Bouncing Around the Room", "Reba", "Golgi Apparatus", "Runaway Jim", "AC/DC Bag", "Fluffhead", "Moma Dance", "Funky Bitch", "Punch You in the Eye", "Ya Mar"];
+        const SONGS_SET_2 = ["Mike's Song", "I Am Hydrogen", "Weekapaug Groove", "Tweezer", "Tweezer Reprise", "Ghost", "Piper", "Down with Disease", "You Enjoy Myself", "Harry Hood", "Slave to the Traffic Light", "Carini", "Sand", "Crosseyed and Painless", "Simple", "Light", "Golden Age", "Scents and Subtle Sounds"];
+        const SONGS_ENCORE = ["Loving Cup", "Character Zero", "Julius", "Tweezer Reprise", "Good Times Bad Times", "Run Like an Antelope", "Contact", "First Tube", "Show of Life", "Rocky Top"];
+
+        // Generate robust dynamic setlists if not explicitly mapped
+        function getSetlistForShow(dateString) {
+            if (HISTORIC_SETLISTS[dateString]) {
+                return HISTORIC_SETLISTS[dateString];
+            }
+            
+            // Generate pseudo-deterministic setlist based on show date to keep it consistent
+            let seed = 0;
+            for (let i = 0; i < dateString.length; i++) {
+                seed += dateString.charCodeAt(i);
+            }
+
+            const selectRandomSongs = (songList, count, sVal) => {
+                let list = [...songList];
+                let selected = [];
+                for (let k = 0; k < count; k++) {
+                    let index = (sVal + k * 7) % list.length;
+                    selected.push(list.splice(index, 1)[0]);
+                }
+                return selected;
+            };
+
+            const s1Count = 5 + (seed % 3); // 5 to 7 songs
+            const s2Count = 4 + (seed % 3); // 4 to 6 songs
+            const s1 = selectRandomSongs(SONGS_SET_1, s1Count, seed).join(", ");
+            const s2 = selectRandomSongs(SONGS_SET_2, s2Count, seed + 10).join(" > ");
+            const enc = selectRandomSongs(SONGS_ENCORE, 1 + (seed % 2), seed + 20).join(", ");
+
+            return {
+                set1: s1,
+                set2: s2,
+                set3: "",
+                encore: enc
+            };
+        }
+
+        const SEED_TEXT = `1992
+December 3, 1992:  Bogart's – Cincinnati, OH
+1993
+August 6, 1993:  Peacock Pavilion, Cincinnati Zoo – Cincinnati, OH
+August 14, 1993:  World Music Theatre – Tinley Park, IL
+December 31, 1993:  Centrum in Worcester – Worcester, MA
+1994
+June 25, 1994:  Nautica Stage – Cleveland, OH
+November 12, 1994:  KSU Mac Center – Kent, OH
+November 17, 1994:  Hara Arena – Dayton, OH
+November 25, 1994:  UIC Pavilion – Chicago, IL
+1995
+June 19, 1995:  Deer Creek Music Center – Noblesville, IN
+June 20, 1995:  Blossom Music Center – Cuyahoga Falls, OH
+October 31, 1995:  Rosemont Horizon – Rosemont, IL  (The legendary Halloween "Quadrophenia" show!)
+November 30, 1995:  Ervin J. Nutter Center – Dayton, OH
+1996
+August 10, 1996:  Alpine Valley Music Theatre – East Troy, WI
+August 12, 1996:  Deer Creek Music Center – Noblesville, IN
+August 13, 1996:  Deer Creek Music Center – Noblesville, IN
+1997
+August 8, 1997:  New World Music Theatre – Tinley Park, IL
+August 9, 1997:  Alpine Valley Music Theatre – East Troy, WI
+August 10, 1997:  Deer Creek Music Center – Noblesville, IN
+August 11, 1997:  Deer Creek Music Center – Noblesville, IN
+August 16–17, 1997:  The Great Went – Loring Air Force Base, Limestone, ME
+December 5, 1997:  CSU Convocation Center – Cleveland, OH
+December 6, 1997:  The Palace of Auburn Hills – Auburn Hills, MI
+December 7, 1997:  Ervin J. Nutter Center – Dayton, OH
+1998
+July 31, 1998:  Polaris Amphitheater – Columbus, OH
+August 8, 1998:  New World Music Theatre – Tinley Park, IL
+November 6, 1998:  Kohl Center – Madison, WI
+November 8, 1998:  UIC Pavilion – Chicago, IL
+November 9, 1998:  UIC Pavilion – Chicago, IL
+1999
+July 24, 1999:  Alpine Valley Music Theatre – East Troy, WI
+2000
+September 29, 2000:  Thomas & Mack Center – Las Vegas, NV
+September 30, 2000:  Thomas & Mack Center – Las Vegas, NV
+October 1, 2000:  Desert Sky Pavilion – Phoenix, AZ
+2003
+February 14, 2003:  The Forum – Inglewood, CA
+February 15, 2003:  Thomas & Mack Center – Las Vegas, NV
+February 16, 2003:  Thomas & Mack Center – Las Vegas, NV
+July 8, 2003:  Coors Amphitheatre – Chula Vista, CA
+July 9, 2003:  Shoreline Amphitheatre – Mountain View, CA
+July 10, 2003:  Shoreline Amphitheatre – Mountain View, CA
+July 23, 2003:  Cricket Pavilion – Phoenix, AZ
+2004
+April 15, 2004:  Thomas & Mack Center – Las Vegas, NV
+April 16, 2004:  Thomas & Mack Center – Las Vegas, NV
+April 17, 2004:  Thomas & Mack Center – Las Vegas, NV
+2009
+October 30 – November 1, 2009:  Festival 8 – Empire Polo Club, Indio, CA
+2016
+June 24, 2016:  Wrigley Field – Chicago, IL
+June 25, 2016:  Wrigley Field – Chicago, IL
+June 26, 2016:  Klipsch Music Center – Noblesville, IN
+July 23, 2016:  Sleep Train Amphitheatre – Chula Vista, CA
+2021
+October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
+
+        // Determine Phish Era dynamically from dates
+        function getEra(dateString) {
+            if (!dateString) return "1.0";
+            const year = parseInt(dateString.split("-")[0]);
+            if (isNaN(year)) return "1.0";
+            if (year <= 2000) return "1.0";
+            if (year <= 2004) return "2.0";
+            if (year <= 2020) return "3.0";
+            return "4.0";
+        }
+
+        // Main initialization
+        window.onload = function() {
+            document.getElementById('bulk-input-area').value = SEED_TEXT.trim();
+            
+            // Populate manual entry dropdown values
+            const manSelect = document.getElementById('man-field-venue-select');
+            Object.keys(VENUE_DB).sort().forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v;
+                manSelect.appendChild(opt);
+            });
+
+            // Initialize Map
+            initMap();
+
+            // Load stored shows or seeds
+            const stored = localStorage.getItem('phish_shows');
+            if (stored) {
+                shows = JSON.parse(stored);
+                // Database Migration: Automatically correct 1993-08-06 show if using the old seed data
+                shows.forEach(s => {
+                    if (s.date === "1993-08-06" && s.venue.includes("PNC Bank Arts Center")) {
+                        s.venue = "Peacock Pavilion, Cincinnati Zoo";
+                        s.location = "Cincinnati, OH";
+                        s.community_rating = 4.42;
+                    }
+                });
+                // Database Migration 2: Add Hara Arena show on 1994-11-17 if missing
+                const hasDayton94 = shows.some(s => s.date === "1994-11-17");
+                if (!hasDayton94) {
+                    shows.push({
+                        id: Date.now() + Math.random(),
+                        date: "1994-11-17",
+                        venue: "Hara Arena",
+                        location: "Dayton, OH",
+                        notes: "Famous Dayton Tweezer show! Added via database migration.",
+                        community_rating: 4.65,
+                        era: "1.0",
+                        source: "Database Migration",
+                        is_milestone: 1
+                    });
+                }
+            } else {
+                shows = parseRawText(SEED_TEXT);
+                saveState();
+            }
+
+            refreshAll();
+        };
+
+        // Initialize Dark Leaflet Map
+        function initMap() {
+            if (mapInstance) return;
+            
+            // Set map initial view on central USA
+            mapInstance = L.map('map', {
+                zoomControl: true,
+                scrollWheelZoom: false
+            }).setView([39.8283, -98.5795], 4);
+
+            // Dark Matter Tile Layer from Carto
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(mapInstance);
+
+            mapMarkersGroup = L.layerGroup().addTo(mapInstance);
+        }
+
+        // Parser logic matching Python backend exactly
+        function parseRawText(text) {
+            const parsedShows = [];
+            let currentYear = null;
+            const lines = text.split('\n');
+
+            const monthsMap = {
+                'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6,
+                'july': 7, 'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12
+            };
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+
+                // Check for year headers
+                if (line.match(/^\d{4}$/)) {
+                    currentYear = parseInt(line);
+                    return;
+                }
+
+                if (line.includes(':')) {
+                    const parts = line.split(':');
+                    const dateRaw = parts[0].trim();
+                    const detailsRaw = parts[1].trim();
+
+                    // Split venue and city/notes
+                    const splitDetails = detailsRaw.split(/[–-]/);
+                    let venue = splitDetails[0] ? splitDetails[0].trim() : '';
+                    let location = splitDetails[1] ? splitDetails[1].trim() : '';
+
+                    let notes = "";
+                    if (location.includes('(')) {
+                        const notesSplit = location.split('(');
+                        location = notesSplit[0].trim();
+                        notes = notesSplit[1].replace(')', '').trim();
+                    } else if (venue.includes('(')) {
+                        const notesSplit = venue.split('(');
+                        venue = notesSplit[0].trim();
+                        notes = notesSplit[1].replace(')', '').trim();
+                    }
+
+                    // Format/clean Date components
+                    const normalizedDateStr = dateRaw.replace(/–/g, '-').replace(/—/g, '-');
+                    const dateList = [];
+
+                    // Case A: Multi-day across months (e.g. "October 30 - November 1, 2009")
+                    const crossMonthMatch = normalizedDateStr.match(/([A-Za-z]+)\s+(\d+)\s*-\s*([A-Za-z]+)\s+(\d+),\s*(\d{4})/);
+                    // Case B: Multi-day within same month (e.g. "August 16-17, 1997")
+                    const sameMonthMatch = normalizedDateStr.match(/([A-Za-z]+)\s+(\d+)\s*-\s*(\d+),\s*(\d{4})/);
+                    // Case C: Single day (e.g. "December 3, 1992")
+                    const singleDateMatch = normalizedDateStr.match(/([A-Za-z]+)\s+(\d+),\s*(\d{4})/);
+
+                    if (crossMonthMatch) {
+                        const m1Name = crossMonthMatch[1].toLowerCase();
+                        const d1 = parseInt(crossMonthMatch[2]);
+                        const m2Name = crossMonthMatch[3].toLowerCase();
+                        const d2 = parseInt(crossMonthMatch[4]);
+                        const y = parseInt(crossMonthMatch[5]);
+
+                        const m1 = monthsMap[m1Name] || 1;
+                        const m2 = monthsMap[m2Name] || 1;
+
+                        const startDate = new Date(y, m1 - 1, d1);
+                        const endDate = new Date(y, m2 - 1, d2);
+
+                        let loopDate = new Date(startDate);
+                        while (loopDate <= endDate) {
+                            dateList.push(formatISODate(loopDate));
+                            loopDate.setDate(loopDate.getDate() + 1);
+                        }
+                    } else if (sameMonthMatch) {
+                        const mName = sameMonthMatch[1].toLowerCase();
+                        const d1 = parseInt(sameMonthMatch[2]);
+                        const d2 = parseInt(sameMonthMatch[3]);
+                        const y = parseInt(sameMonthMatch[4]);
+                        const m = monthsMap[mName] || 1;
+
+                        for (let d = d1; d <= d2; d++) {
+                            const loopDate = new Date(y, m - 1, d);
+                            dateList.push(formatISODate(loopDate));
+                        }
+                    } else if (singleDateMatch) {
+                        const mName = singleDateMatch[1].toLowerCase();
+                        const d = parseInt(singleDateMatch[2]);
+                        const y = parseInt(singleDateMatch[3]);
+                        const m = monthsMap[mName] || 1;
+
+                        const loopDate = new Date(y, m - 1, d);
+                        dateList.push(formatISODate(loopDate));
+                    } else {
+                        if (currentYear) {
+                            dateList.push(`${currentYear}-01-01`);
+                        }
+                    }
+
+                    // For each extracted date, build the SQLite-compatible row
+                    dateList.forEach(showDate => {
+                        let commRating = 4.2;
+                        let isMilestone = 0;
+
+                        // Identify milestones from text markers
+                        if (notes.toLowerCase().includes('quadrophenia') || 
+                            notes.toLowerCase().includes('halloween') || 
+                            venue.toLowerCase().includes('great went') ||
+                            showDate.endsWith('-12-31')) {
+                            isMilestone = 1;
+                        }
+
+                        // Connect community details
+                        let matchedVenueKey = Object.keys(VENUE_DB).find(key => 
+                            venue.toLowerCase().includes(key.toLowerCase()) || 
+                            key.toLowerCase().includes(venue.toLowerCase())
+                        );
+
+                        if (matchedVenueKey) {
+                            commRating = VENUE_DB[matchedVenueKey].avg_rating;
+                        }
+
+                        parsedShows.push({
+                            id: Date.now() + Math.random(),
+                            date: showDate,
+                            venue: venue,
+                            location: location,
+                            notes: notes,
+                            community_rating: commRating,
+                            era: getEra(showDate),
+                            source: "Text Seed",
+                            is_milestone: isMilestone
+                        });
+                    });
+                }
+            });
+
+            return parsedShows;
+        }
+
+        function formatISODate(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // Persist storage
+        function saveState() {
+            localStorage.setItem('phish_shows', JSON.stringify(shows));
+        }
+
+        // Main visual sync function
+        function refreshAll() {
+            saveState();
+            updateMetrics();
+            updateMap();
+            updateCharts();
+            renderTable();
+            populateVenueSelectors();
+        }
+
+        function updateMetrics() {
+            const totalAttended = shows.length;
+            const percentage = ((totalAttended / 2056) * 100).toFixed(2) + '%';
+            
+            let totalRating = 0;
+            let ratingCount = 0;
+            let milestones = 0;
+
+            shows.forEach(s => {
+                if (s.community_rating) {
+                    totalRating += parseFloat(s.community_rating);
+                    ratingCount++;
+                }
+                if (s.is_milestone) {
+                    milestones++;
+                }
+            });
+
+            const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(2) : '0.00';
+
+            document.getElementById('metric-attended').textContent = totalAttended;
+            document.getElementById('metric-percentage').textContent = percentage;
+            document.getElementById('metric-rating').textContent = '⭐ ' + avgRating;
+            document.getElementById('metric-milestones').textContent = '🔥 ' + milestones;
+        }
+
+        // Map Markers update with reactive Leaflet loops
+        function updateMap() {
+            if (!mapInstance || !mapMarkersGroup) return;
+            mapMarkersGroup.clearLayers();
+
+            // Group shows by standard venue
+            const grouped = {};
+            shows.forEach(s => {
+                let venueKey = Object.keys(VENUE_DB).find(key => 
+                    s.venue.toLowerCase().includes(key.toLowerCase()) || 
+                    key.toLowerCase().includes(s.venue.toLowerCase())
+                ) || s.venue;
+
+                if (!grouped[venueKey]) {
+                    grouped[venueKey] = {
+                        venue: venueKey,
+                        shows: [],
+                        latitude: 39.8283,
+                        longitude: -98.5795,
+                        avg_rating: 4.2
+                    };
+
+                    if (VENUE_DB[venueKey]) {
+                        grouped[venueKey].latitude = VENUE_DB[venueKey].coords[0];
+                        grouped[venueKey].longitude = VENUE_DB[venueKey].coords[1];
+                        grouped[venueKey].avg_rating = VENUE_DB[venueKey].avg_rating;
+                    }
+                }
+                grouped[venueKey].shows.push(s);
+            });
+
+            // Draw markers
+            Object.values(grouped).forEach(v => {
+                const count = v.shows.length;
+                const radiusSize = Math.min(Math.max(count * 3, 8), 24);
+
+                // Build custom glowing icon matching theme
+                const customIcon = L.divIcon({
+                    className: 'custom-leaflet-icon',
+                    html: `<div class="emerald-pulse-marker" style="width: ${radiusSize}px; height: ${radiusSize}px; background-color: ${v.avg_rating > 4.6 ? '#f472b6' : '#22d3ee'}; box-shadow: 0 0 12px ${v.avg_rating > 4.6 ? '#f472b6' : '#22d3ee'}"></div>`,
+                    iconSize: [radiusSize, radiusSize],
+                    iconAnchor: [radiusSize/2, radiusSize/2]
+                });
+
+                const marker = L.marker([v.latitude, v.longitude], { icon: customIcon });
+                
+                // Clicking marker updates the sidebar/modal vault details
+                marker.on('click', () => {
+                    displayVenueDetails(v.venue);
+                });
+
+                // Attach tooltip
+                marker.bindTooltip(`
+                    <div class="text-xs bg-gray-900 text-white border-0 p-1 font-semibold rounded shadow-md">
+                        <strong>${v.venue}</strong><br/>
+                        Shows Attended: ${count}<br/>
+                        Community Rank: ⭐ ${parseFloat(v.avg_rating).toFixed(2)}
+                    </div>
+                `, { html: true });
+
+                mapMarkersGroup.addLayer(marker);
+            });
+        }
+
+        // Populating Selectors
+        function populateVenueSelectors() {
+            const selectEl = document.getElementById('vault-venue-selector');
+            const selectedVal = selectEl.value;
+            selectEl.innerHTML = '';
+
+            const optionDefault = document.createElement('option');
+            optionDefault.value = "";
+            optionDefault.textContent = "-- Choose a Venue to Unlock --";
+            selectEl.appendChild(optionDefault);
+
+            // Fetch list of active visited venues
+            const uniqueVenues = [...new Set(shows.map(s => {
+                return Object.keys(VENUE_DB).find(key => 
+                    s.venue.toLowerCase().includes(key.toLowerCase()) || 
+                    key.toLowerCase().includes(s.venue.toLowerCase())
+                ) || s.venue;
+            }))].sort();
+
+            uniqueVenues.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v;
+                selectEl.appendChild(opt);
+            });
+
+            if (selectedVal) {
+                selectEl.value = selectedVal;
+            }
+        }
+
+        function onSelectorVenueChange(val) {
+            if (val) displayVenueDetails(val);
+        }
+
+        // Sidebar Content Generator
+        function displayVenueDetails(venueName) {
+            const display = document.getElementById('vault-display-area');
+            const selector = document.getElementById('vault-venue-selector');
+            selector.value = venueName;
+
+            // Fetch matching static records if exists
+            let meta = Object.keys(VENUE_DB).find(key => 
+                venueName.toLowerCase().includes(key.toLowerCase()) || 
+                key.toLowerCase().includes(venueName.toLowerCase())
+            );
+
+            let record = meta ? VENUE_DB[meta] : null;
+            const venueShows = shows.filter(s => s.venue.toLowerCase().includes(venueName.toLowerCase()) || venueName.toLowerCase().includes(s.venue.toLowerCase()));
+
+            let datesHTML = "";
+            venueShows.forEach(s => {
+                datesHTML += `
+                    <div class="bg-gray-800/60 rounded-lg p-2.5 border border-gray-750 flex justify-between items-center text-[11px]">
+                        <div>
+                            <span class="font-semibold text-emerald-300">🗓️ ${s.date}</span>
+                            ${s.notes ? `<div class="text-gray-400 italic mt-0.5">${s.notes}</div>` : ""}
+                        </div>
+                        <span class="${s.is_milestone ? 'bg-yellow-900/40 text-yellow-300 border-yellow-800' : 'bg-gray-700/50 text-gray-300 border-gray-600'} px-1.5 py-0.5 rounded border text-[10px]">
+                            ${s.is_milestone ? 'Milestone' : 'Show'}
+                        </span>
+                    </div>
+                `;
+            });
+
+            let jamsHTML = "";
+            if (record && record.top_jams) {
+                record.top_jams.forEach(j => {
+                    jamsHTML += `<li class="flex items-center text-xs text-gray-300"><i class="fa-solid fa-music text-emerald-400 mr-2 text-[10px]"></i> ${j}</li>`;
+                });
+            } else {
+                jamsHTML = `<li class="text-xs text-gray-500 italic">No historical community jams matched.</li>`;
+            }
+
+            display.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-200">${record ? record.standard_name : venueName}</h4>
+                        <span class="text-xs text-emerald-400 font-semibold">📍 ${record ? record.city : 'United States'}</span>
+                        <div class="text-xs text-gray-400 mt-1">Average Community Rating: <span class="text-yellow-400 font-bold">⭐ ${record ? record.avg_rating.toFixed(2) : '4.20'}</span></div>
+                    </div>
+
+                    <div class="space-y-1.5 max-h-48 overflow-y-auto">
+                        <span class="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Your Visits Here:</span>
+                        ${datesHTML ? datesHTML : '<div class="text-xs text-gray-500 italic">No logged show history.</div>'}
+                    </div>
+
+                    <div class="bg-emerald-950/20 border border-emerald-900/40 p-3 rounded-lg text-xs space-y-1">
+                        <span class="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">🌟 Community Setlist Highlight</span>
+                        <p class="text-gray-300 leading-relaxed text-[11px]">
+                            ${record ? record.setlist_highlight : 'Setlist highlights unavailable for custom venue records.'}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] font-bold uppercase text-gray-500 tracking-wider">🔥 Ranked Jam Tracks</span>
+                        <ul class="space-y-1">
+                            ${jamsHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Chart.js dashboards
+        function updateCharts() {
+            // Era Breakdown Calculations
+            const eraCounts = { "1.0": 0, "2.0": 0, "3.0": 0, "4.0": 0 };
+            shows.forEach(s => {
+                const eraKey = getEra(s.date).split(" ")[0];
+                if (eraCounts[eraKey] !== undefined) {
+                    eraCounts[eraKey]++;
+                }
+            });
+
+            if (eraChartInstance) eraChartInstance.destroy();
+            const ctxEra = document.getElementById('eraChart').getContext('2d');
+            eraChartInstance = new Chart(ctxEra, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1.0 Era (1983-2000)', '2.0 Era (2002-2004)', '3.0 Era (2009-2020)', '4.0 Era (2021+)'],
+                    datasets: [{
+                        data: [eraCounts["1.0"], eraCounts["2.0"], eraCounts["3.0"], eraCounts["4.0"]],
+                        backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B'],
+                        borderColor: '#111827',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#9ca3af', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // Top Venues Calculations
+            const venueFreq = {};
+            shows.forEach(s => {
+                let matchedVenue = Object.keys(VENUE_DB).find(key => 
+                    s.venue.toLowerCase().includes(key.toLowerCase()) || 
+                    key.toLowerCase().includes(s.venue.toLowerCase())
+                ) || s.venue;
+
+                venueFreq[matchedVenue] = (venueFreq[matchedVenue] || 0) + 1;
+            });
+
+            const sortedVenues = Object.entries(venueFreq)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const vLabels = sortedVenues.map(item => item[0]);
+            const vData = sortedVenues.map(item => item[1]);
+
+            if (venueChartInstance) venueChartInstance.destroy();
+            const ctxVenue = document.getElementById('venueChart').getContext('2d');
+            venueChartInstance = new Chart(ctxVenue, {
+                type: 'bar',
+                data: {
+                    labels: vLabels,
+                    datasets: [{
+                        label: 'Visit Count',
+                        data: vData,
+                        backgroundColor: '#10B981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9ca3af', stepSize: 1 },
+                            grid: { color: '#1f2937' }
+                        },
+                        y: {
+                            ticks: { color: '#9ca3af', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Toggles a show setlist expanded state
+        function toggleShowSetlist(showId) {
+            expandedShows[showId] = !expandedShows[showId];
+            renderTable();
+        }
+
+        // Render data rows in search grid
+        function renderTable() {
+            const tbody = document.getElementById('concert-table-body');
+            tbody.innerHTML = '';
+
+            const searchQ = document.getElementById('grid-search').value.toLowerCase();
+            const eraFilter = document.getElementById('grid-era-filter').value;
+            const milestoneFilter = document.getElementById('grid-milestone-filter').value;
+
+            // Sort newest shows first
+            const sortedShows = [...shows].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedShows.forEach(s => {
+                // Filters
+                const matchesSearch = s.venue.toLowerCase().includes(searchQ) || 
+                                      s.location.toLowerCase().includes(searchQ) || 
+                                      s.notes.toLowerCase().includes(searchQ);
+                
+                const showEra = getEra(s.date).split(" ")[0];
+                const matchesEra = eraFilter === 'All' || showEra === eraFilter;
+
+                const matchesMilestone = milestoneFilter === 'All' || 
+                                         (milestoneFilter === 'Milestones' && s.is_milestone) ||
+                                         (milestoneFilter === 'Standard' && !s.is_milestone);
+
+                if (matchesSearch && matchesEra && matchesMilestone) {
+                    const isExpanded = !!expandedShows[s.id];
+                    const setlist = getSetlistForShow(s.date);
+
+                    // Parent Row
+                    const tr = document.createElement('tr');
+                    tr.className = `cursor-pointer hover:bg-gray-800/40 transition-colors ${isExpanded ? 'bg-gray-850 border-l-2 border-emerald-500' : ''}`;
+                    tr.onclick = () => toggleShowSetlist(s.id);
+                    tr.innerHTML = `
+                        <td class="py-3 px-2 text-center text-gray-500">
+                            <i class="fa-solid ${isExpanded ? 'fa-chevron-up text-emerald-400' : 'fa-chevron-down'} text-xs"></i>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-emerald-400 whitespace-nowrap">${s.date}</td>
+                        <td class="py-3 px-4 text-gray-200 font-medium">${s.venue}</td>
+                        <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${s.location || '-'}</td>
+                        <td class="py-3 px-4 text-yellow-500 font-mono font-bold whitespace-nowrap">⭐ ${parseFloat(s.community_rating).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-gray-400 font-mono whitespace-nowrap">${showEra}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.is_milestone ? 'bg-yellow-950/80 text-yellow-400 border border-yellow-800' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
+                                ${s.is_milestone ? 'Milestone' : 'Standard'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-400 max-w-xs truncate" title="${s.notes || ''}">${s.notes || '-'}</td>
+                        <td class="py-3 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation();">
+                            <button onclick="deleteShow(${s.id})" class="text-red-400 hover:text-red-300 font-medium hover:underline text-[11px] ml-2">
+                                <i class="fa-solid fa-trash-can mr-1"></i>Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+
+                    // Accordion Child Dropdown Row (Setlists details)
+                    if (isExpanded) {
+                        const dropTr = document.createElement('tr');
+                        dropTr.className = "bg-gray-950 border-b border-gray-800";
+                        dropTr.innerHTML = `
+                            <td colspan="9" class="py-4 px-6">
+                                <div class="space-y-3 border-l-2 border-emerald-500/50 pl-4 py-1">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-list-music text-[10px]"></i> Expanded Setlist Breakdown
+                                    </h4>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 text-xs">
+                                        <!-- Sets -->
+                                        <div class="md:col-span-8 space-y-2">
+                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 1:</span>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set1}</p>
+                                            </div>
+                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 2:</span>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set2}</p>
+                                            </div>
+                                            ${setlist.set3 ? `
+                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 3:</span>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.set3}</p>
+                                            </div>` : ''}
+                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Encore:</span>
+                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${setlist.encore}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Highlights -->
+                                        <div class="md:col-span-4 bg-gray-900/40 p-3 rounded border border-gray-850 space-y-3">
+                                            <div>
+                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Concert Notes / Jams:</span>
+                                                <p class="text-gray-400 mt-1 text-[11px] italic">${s.notes || 'No custom notes provided.'}</p>
+                                            </div>
+                                            <div class="border-t border-gray-800/80 pt-2 flex justify-between text-[11px]">
+                                                <span class="text-gray-500">Community Rank:</span>
+                                                <span class="text-yellow-400 font-bold">⭐ ${parseFloat(s.community_rating).toFixed(2)} / 5.0</span>
+                                            </div>
+                                            <div class="flex justify-between text-[11px]">
+                                                <span class="text-gray-500">Phish Touring Era:</span>
+                                                <span class="text-emerald-400 font-bold font-mono">Era ${showEra}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(dropTr);
+                    }
+                }
+            });
+
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center py-8 text-gray-500 italic">No matching concert entries found in local database storage.</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Action controllers
+        function deleteShow(showId) {
+            shows = shows.filter(s => s.id !== showId);
+            refreshAll();
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('tab-content-bulk').classList.add('hidden');
+            document.getElementById('tab-content-ocr').classList.add('hidden');
+            document.getElementById('tab-content-manual').classList.add('hidden');
+
+            document.getElementById('tab-btn-bulk').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
+            document.getElementById('tab-btn-ocr').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
+            document.getElementById('tab-btn-manual').className = "py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-emerald-400 whitespace-nowrap focus:outline-none";
+
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+            const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+            targetBtn.className = "py-2.5 px-4 text-sm font-medium border-b-2 border-emerald-500 text-emerald-400 whitespace-nowrap focus:outline-none";
+        }
+
+        // Process Text Bulk Form
+        function processBulkText() {
+            const rawVal = document.getElementById('bulk-input-area').value;
+            const parsed = parseRawText(rawVal);
+            if (parsed.length > 0) {
+                // Simple deduplication based on exact date
+                parsed.forEach(parsedShow => {
+                    const duplicateIndex = shows.findIndex(s => s.date === parsedShow.date);
+                    if (duplicateIndex > -1) {
+                        shows[duplicateIndex] = parsedShow; // Update existing
+                    } else {
+                        shows.push(parsedShow); // Add new
+                    }
+                });
+                refreshAll();
+            }
+        }
+
+        function resetToSeeds() {
+            shows = parseRawText(SEED_TEXT);
+            refreshAll();
+        }
+
+        // Simulated OCR ticket stub processes
+        function triggerMockStubScan() {
+            const container = document.getElementById('ocr-mock-img-container');
+            const placeholder = document.getElementById('ocr-upload-placeholder');
+            const ocrImg = document.getElementById('ocr-mock-img');
+
+            // Set placeholder sample ticket
+            ocrImg.src = "https://placehold.co/600x350/111827/34d399?text=PHISH+STUB+1998+LAS+VEGAS";
+            placeholder.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            // Begin scanner laser movement
+            setTimeout(() => {
+                // Autofill the scanning validation results
+                document.getElementById('ocr-field-date').value = "1998-10-31";
+                document.getElementById('ocr-field-conf').value = "94.8% (HIGH)";
+                document.getElementById('ocr-field-venue').value = "Thomas & Mack Center";
+                document.getElementById('ocr-field-city').value = "Las Vegas, NV";
+                document.getElementById('ocr-field-notes').value = "Halloween Show - Loaded via OCR Scanner simulation";
+            }, 1000);
+        }
+
+        function commitOcrShow() {
+            const date = document.getElementById('ocr-field-date').value;
+            const venue = document.getElementById('ocr-field-venue').value;
+            const city = document.getElementById('ocr-field-city').value;
+            const notes = document.getElementById('ocr-field-notes').value;
+
+            if (!date || !venue) {
+                return;
+            }
+
+            let rating = 4.2;
+            let matchedVenueKey = Object.keys(VENUE_DB).find(key => 
+                venue.toLowerCase().includes(key.toLowerCase()) || 
+                key.toLowerCase().includes(venue.toLowerCase())
+            );
+            if (matchedVenueKey) rating = VENUE_DB[matchedVenueKey].avg_rating;
+
+            const existingIndex = shows.findIndex(s => s.date === date);
+            const newShow = {
+                id: Date.now(),
+                date: date,
+                venue: venue,
+                location: city,
+                notes: notes,
+                community_rating: rating,
+                era: getEra(date),
+                source: "Ticket OCR",
+                is_milestone: notes.toLowerCase().includes('halloween') || notes.toLowerCase().includes('milestone') ? 1 : 0
+            };
+
+            if (existingIndex > -1) {
+                shows[existingIndex] = newShow;
+            } else {
+                shows.push(newShow);
+            }
+
+            refreshAll();
+        }
+
+        // Manual Entry System Form handlers
+        function fillManualVenueInfo(vKey) {
+            const customInput = document.getElementById('man-field-venue-custom');
+            const cityInput = document.getElementById('man-field-city');
+
+            if (vKey && VENUE_DB[vKey]) {
+                customInput.value = VENUE_DB[vKey].standard_name;
+                cityInput.value = VENUE_DB[vKey].city;
+            } else {
+                customInput.value = "";
+                cityInput.value = "";
+            }
+        }
+
+        function commitManualShow() {
+            const date = document.getElementById('man-field-date').value;
+            const dropdownV = document.getElementById('man-field-venue-select').value;
+            const customV = document.getElementById('man-field-venue-custom').value;
+            const city = document.getElementById('man-field-city').value;
+            const notes = document.getElementById('man-field-notes').value;
+
+            const venue = customV || dropdownV;
+
+            if (!date || !venue) {
+                return;
+            }
+
+            let rating = 4.2;
+            let matchedVenueKey = Object.keys(VENUE_DB).find(key => 
+                venue.toLowerCase().includes(key.toLowerCase()) || 
+                key.toLowerCase().includes(venue.toLowerCase())
+            );
+            if (matchedVenueKey) rating = VENUE_DB[matchedVenueKey].avg_rating;
+
+            const existingIndex = shows.findIndex(s => s.date === date);
+            const newShow = {
+                id: Date.now(),
+                date: date,
+                venue: venue,
+                location: city,
+                notes: notes,
+                community_rating: rating,
+                era: getEra(date),
+                source: "Manual Entry",
+                is_milestone: notes.toLowerCase().includes('halloween') || notes.toLowerCase().includes('milestone') ? 1 : 0
+            };
+
+            if (existingIndex > -1) {
+                shows[existingIndex] = newShow;
+            } else {
+                shows.push(newShow);
+            }
+
+            refreshAll();
+        }
+
+        // Data CSV download builder
+        function downloadCSV() {
+            if (shows.length === 0) {
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Date,Venue,Location,Community Rating,Era,Source,Is Milestone,Notes\r\n";
+
+            // Sort newest first for cleaner files
+            const sorted = [...shows].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            sorted.forEach(s => {
+                const row = [
+                    `"${s.date}"`,
+                    `"${s.venue.replace(/"/g, '""')}"`,
+                    `"${(s.location || '').replace(/"/g, '""')}"`,
+                    `"${s.community_rating.toFixed(2)}"`,
+                    `"${getEra(s.date).split(" ")[0]}"`,
+                    `"${s.source}"`,
+                    `"${s.is_milestone ? 'Yes' : 'No'}"`,
+                    `"${(s.notes || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Phish_Tour_History_Database.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
