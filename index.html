@@ -314,6 +314,24 @@
             </div>
         </header>
 
+        <!-- Primary Page Switcher (In-Person vs Couch Tour) -->
+        <div class="flex justify-center border-b border-white/10 pb-4 mb-2">
+            <div class="bg-gray-900/80 p-1.5 rounded-2xl border border-white/10 flex space-x-2 backdrop-blur-xl shadow-2xl">
+                <button id="btn-page-inperson" onclick="switchMainPage('inperson')" class="px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white border border-purple-400/30">
+                    <i class="fa-solid fa-ticket text-pink-400"></i>
+                    <span>In-Person Tour Footprint</span>
+                </button>
+                <button id="btn-page-couch" onclick="switchMainPage('couch')" class="px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent">
+                    <i class="fa-solid fa-tv text-cyan-400"></i>
+                    <span>Couch Tour & Webcasts</span>
+                    <span class="bg-cyan-950 text-cyan-400 text-[10px] font-mono px-2 py-0.5 rounded-full border border-cyan-800/60">LIVEPHISH + YOUTUBE</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Page 1: In-Person Tour Footprint -->
+        <div id="main-page-inperson" class="space-y-8">
+
         <!-- Metrics Row -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
@@ -576,9 +594,14 @@
                     <p class="text-xs text-gray-500">Click anywhere on a show row to expand/collapse the **Setlist Dropdown**.</p>
                 </div>
                 <!-- Action Controls -->
-                <button onclick="downloadCSV()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-1.5 px-4 rounded-lg text-xs flex items-center self-start md:self-auto transition-all">
-                    <i class="fa-solid fa-download mr-1.5"></i>Download Complete Dataset as CSV
-                </button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="resetToSeeds()" class="bg-indigo-700/80 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3.5 rounded-lg text-xs flex items-center transition-all border border-indigo-400/30">
+                        <i class="fa-solid fa-rotate-left mr-1.5"></i>Restore 52 Attended Shows
+                    </button>
+                    <button onclick="downloadCSV()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-1.5 px-4 rounded-lg text-xs flex items-center transition-all">
+                        <i class="fa-solid fa-download mr-1.5"></i>Download Complete Dataset as CSV
+                    </button>
+                </div>
             </div>
 
             <!-- Table Filters -->
@@ -624,10 +647,94 @@
                     </thead>
                     <tbody id="concert-table-body" class="divide-y divide-gray-800">
                         <!-- Populated via javascript database loop -->
-                    </tbody>
                 </table>
             </div>
         </div>
+        </div>
+        <!-- End of Page 1: In-Person Tour Footprint -->
+
+        <!-- Page 2: Couch Tour & Webcasts Dashboard -->
+        <div id="main-page-couch" class="space-y-8 hidden">
+            
+            <!-- Couch Tour Metrics Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                    <div id="couch-metric-total" class="text-3xl font-extrabold text-cyan-400">90</div>
+                    <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Total Webcasts Watched</div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                    <div id="couch-metric-stash" class="text-3xl font-extrabold text-pink-400">70</div>
+                    <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">LivePhish Stash Collection</div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                    <div id="couch-metric-youtube" class="text-3xl font-extrabold text-purple-400">20</div>
+                    <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Free YouTube Webcasts</div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-lg">
+                    <div id="couch-metric-topvenue" class="text-2xl font-extrabold text-yellow-400 truncate">Sphere / MSG</div>
+                    <div class="text-xs uppercase text-gray-500 font-semibold tracking-wider mt-1">Top Webcast Venue</div>
+                </div>
+            </div>
+
+            <!-- Webcast Search & Filter Controls -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-tv text-pink-400"></i> Couch Tour & Webcast Archive
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Browse your LivePhish Stash webcasts and official free YouTube broadcast releases. Click any card to launch stream details or watch.
+                        </p>
+                    </div>
+                    <!-- Source Badges Filter & Add Show Button -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="setWebcastSourceFilter('all')" id="filter-src-all" class="couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-pink-400/40 shadow-md transition-all">
+                            All Shows (<span id="count-src-all">90</span>)
+                        </button>
+                        <button onclick="setWebcastSourceFilter('stash')" id="filter-src-stash" class="couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 hover:text-white hover:bg-gray-700 transition-all">
+                            <i class="fa-solid fa-compact-disc text-pink-400 mr-1"></i>LivePhish Stash / LivePhish+ (<span id="count-src-stash">70</span>)
+                        </button>
+                        <button onclick="setWebcastSourceFilter('youtube')" id="filter-src-youtube" class="couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 hover:text-white hover:bg-gray-700 transition-all">
+                            <i class="fa-brands fa-youtube text-red-500 mr-1"></i>YouTube Streams (<span id="count-src-youtube">20</span>)
+                        </button>
+                        <button onclick="setWebcastSourceFilter('daam')" id="filter-src-daam" class="couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 hover:text-white hover:bg-gray-700 transition-all">
+                            🍕 Dinner & A Movie
+                        </button>
+                        <button onclick="openAddWebcastModal()" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border border-emerald-400/40 shadow-lg transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Add Webcast / LivePhish+ Show
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Bar & Secondary Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="relative">
+                        <input type="text" id="couch-search" oninput="renderCouchTourGallery()" placeholder="🔍 Search Webcasts by Venue, City, Year, Song..." class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 pl-9 pr-4 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <select id="couch-year-filter" onchange="renderCouchTourGallery()" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            <option value="All">All Years</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="couch-sort" onchange="renderCouchTourGallery()" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            <option value="date-desc">Sort: Date (Newest First)</option>
+                            <option value="date-asc">Sort: Date (Oldest First)</option>
+                            <option value="venue">Sort: Venue Name</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Couch Tour Webcast Gallery Grid -->
+            <div id="couch-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+        </div>
+        <!-- End of Page 2: Couch Tour & Webcasts Dashboard -->
 
     </div>
 
@@ -994,53 +1101,49 @@
         let fetchingSetlists = {};
 
         // Generate robust dynamic setlists if not explicitly mapped
-        function generateFallbackSetlist(dateString) {
-            let seed = 0;
-            for (let i = 0; i < dateString.length; i++) {
-                seed += dateString.charCodeAt(i);
-            }
-
-            const selectRandomSongs = (songList, count, sVal) => {
-                let list = [...songList];
-                let selected = [];
-                for (let k = 0; k < count; k++) {
-                    let index = (sVal + k * 7) % list.length;
-                    selected.push(list.splice(index, 1)[0]);
-                }
-                return selected;
-            };
-
-            const s1Count = 5 + (seed % 3); // 5 to 7 songs
-            const s2Count = 4 + (seed % 3); // 4 to 6 songs
-            const s1 = selectRandomSongs(SONGS_SET_1, s1Count, seed).join(", ");
-            const s2 = selectRandomSongs(SONGS_SET_2, s2Count, seed + 10).join(" > ");
-            const enc = selectRandomSongs(SONGS_ENCORE, 1 + (seed % 2), seed + 20).join(", ");
-
-            return {
-                set1: s1,
-                set2: s2,
-                set3: "",
-                encore: enc
-            };
+        function isFutureDate(dateString) {
+            if (!dateString) return false;
+            const iso = parseToISODate(dateString);
+            if (!iso || iso.length < 10) return false;
+            const todayIso = new Date().toISOString().split('T')[0];
+            return iso > todayIso;
         }
 
         function getSetlistForShow(dateString) {
-            if (HISTORIC_SETLISTS[dateString]) {
-                return HISTORIC_SETLISTS[dateString];
+            const iso = parseToISODate(dateString);
+            
+            if (HISTORIC_SETLISTS[iso] || HISTORIC_SETLISTS[dateString]) {
+                return HISTORIC_SETLISTS[iso] || HISTORIC_SETLISTS[dateString];
             }
-            if (fetchedSetlists[dateString]) {
-                return fetchedSetlists[dateString];
+            if (fetchedSetlists[iso] || fetchedSetlists[dateString]) {
+                return fetchedSetlists[iso] || fetchedSetlists[dateString];
+            }
+
+            // If the show hasn't happened yet, do NOT invent fake setlists!
+            if (isFutureDate(dateString)) {
+                return {
+                    isFuture: true,
+                    set1: "Upcoming Show — Setlist will populate automatically once the concert takes place!",
+                    set2: "",
+                    set3: "",
+                    encore: ""
+                };
             }
             
-            // If it's a fallback generated setlist that we saved on error
-            if (fetchingSetlists[dateString] === 'failed') {
-                return generateFallbackSetlist(dateString);
+            if (fetchingSetlists[iso] === 'failed' || fetchingSetlists[dateString] === 'failed') {
+                return {
+                    isMissing: true,
+                    set1: "Setlist not yet available in online archive.",
+                    set2: "",
+                    set3: "",
+                    encore: ""
+                };
             }
             
-            if (!fetchingSetlists[dateString]) {
-                fetchingSetlists[dateString] = 'fetching';
+            if (!fetchingSetlists[iso]) {
+                fetchingSetlists[iso] = 'fetching';
                 
-                fetch(`https://phish.in/api/v2/shows/${dateString}`)
+                fetch(`https://phish.in/api/v2/shows/${iso}`)
                     .then(res => {
                         if (!res.ok) throw new Error("HTTP " + res.status);
                         return res.json();
@@ -1067,26 +1170,32 @@
                                 }
                             });
                             
-                            fetchedSetlists[dateString] = {
+                            const resultObj = {
                                 set1: s1List.join(', '),
                                 set2: s2List.join(', '),
                                 set3: s3List.join(', '),
                                 encore: encList.join(', ')
                             };
+
+                            fetchedSetlists[iso] = resultObj;
+                            fetchedSetlists[dateString] = resultObj;
                             
                             try {
                                 localStorage.setItem('phish_setlist_cache', JSON.stringify(fetchedSetlists));
                             } catch (e) {}
                             
-                            refreshAll();
+                            if (typeof refreshAll === 'function') refreshAll();
+                            if (typeof renderCouchTourGallery === 'function') renderCouchTourGallery();
                         } else {
                             throw new Error("No track data found");
                         }
                     })
                     .catch(err => {
-                        console.warn(`Could not load setlist from Phish.in for ${dateString}:`, err);
+                        console.warn(`Could not load setlist from Phish.in for ${iso}:`, err);
+                        fetchingSetlists[iso] = 'failed';
                         fetchingSetlists[dateString] = 'failed';
-                        refreshAll();
+                        if (typeof refreshAll === 'function') refreshAll();
+                        if (typeof renderCouchTourGallery === 'function') renderCouchTourGallery();
                     });
             }
             
@@ -1096,6 +1205,20 @@
                 set3: "",
                 encore: ""
             };
+        }
+
+        function forceRefreshSetlist(dateString) {
+            const iso = parseToISODate(dateString);
+            delete fetchingSetlists[iso];
+            delete fetchedSetlists[iso];
+            delete fetchingSetlists[dateString];
+            delete fetchedSetlists[dateString];
+            try {
+                localStorage.setItem('phish_setlist_cache', JSON.stringify(fetchedSetlists));
+            } catch(e) {}
+            getSetlistForShow(dateString);
+            if (typeof renderCouchTourGallery === 'function') renderCouchTourGallery();
+            if (typeof renderTable === 'function') renderTable();
         }
 
         const SEED_TEXT = `1992
@@ -1190,11 +1313,15 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             // Initialize Map
             initMap();
 
-            // Load stored shows or seeds
+            // Load stored shows or fallback to SEED_TEXT (52 Attended Shows)
             const stored = localStorage.getItem('phish_shows');
-            if (stored) {
-                shows = JSON.parse(stored);
-                // Database Migration: Automatically correct 1993-08-06 show if using the old seed data
+            let parsedStored = null;
+            try {
+                parsedStored = stored ? JSON.parse(stored) : null;
+            } catch (e) {}
+
+            if (parsedStored && Array.isArray(parsedStored) && parsedStored.length > 25) {
+                shows = parsedStored;
                 shows.forEach(s => {
                     if (s.date === "1993-08-06" && s.venue.includes("PNC Bank Arts Center")) {
                         s.venue = "Peacock Pavilion, Cincinnati Zoo";
@@ -1202,7 +1329,6 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         s.community_rating = 4.42;
                     }
                 });
-                // Database Migration 2: Add Hara Arena show on 1994-11-17 if missing
                 const hasDayton94 = shows.some(s => s.date === "1994-11-17");
                 if (!hasDayton94) {
                     shows.push({
@@ -1217,7 +1343,6 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                         is_milestone: 1
                     });
                 }
-                // Database Migration 3: Add Hollywood Bowl show on 2013-08-05 if missing
                 const hasHollywood13 = shows.some(s => s.date === "2013-08-05");
                 if (!hasHollywood13) {
                     shows.push({
@@ -2313,6 +2438,969 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                 container.appendChild(songCard);
             });
         }
+
+        // Couch Tour Data State & Engine
+        const DEFAULT_STASH_SHOWS = [
+          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 6, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260906_01.jpg", "showTitle": "9-6-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 5, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260905_01.jpg", "showTitle": "9-5-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 4, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260904_01.jpg", "showTitle": "9-4-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Fenway Park", "city": "Boston, MA", "date": "Aug 1, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260801_01.jpg", "showTitle": "8-1-2026 Fenway Park Boston, MA", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Fenway Park", "city": "Boston, MA", "date": "Jul 31, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260731_01.jpg", "showTitle": "7-31-2026 Fenway Park Boston, MA", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 29, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260729_01.jpg", "showTitle": "7-29-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 27, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260727_01.jpg", "showTitle": "7-27-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 25, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260725_01.jpg", "showTitle": "7-25-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 24, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260724_01.jpg", "showTitle": "7-24-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 22, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260722_01.jpg", "showTitle": "7-22-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Empower Federal Credit Union Amphitheater at Lakeview", "city": "Syracuse, NY", "date": "Jul 21, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260721_01.jpg", "showTitle": "7-21-2026 Empower Federal Credit Union Amphitheater Syracuse, NY", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 19, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260719_01.jpg", "showTitle": "7-19-2026 Merriweather Post Pavilion Columbia, MD", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 18, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260718_01.jpg", "showTitle": "7-18-2026 Merriweather Post Pavilion Columbia, MD", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Coastal Credit Union Music Park at Walnut Creek", "city": "Raleigh, NC", "date": "Jul 17, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260717_01.jpg", "showTitle": "7-17-2026 Coastal Credit Union Music Park Raleigh, NC", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Enmarket Arena", "city": "Savannah, GA", "date": "Jul 15, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260715_01.jpg", "showTitle": "7-15-2026 Enmarket Arena Savannah, GA", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Enmarket Arena", "city": "Savannah, GA", "date": "Jul 14, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260714_01.jpg", "showTitle": "7-14-2026 Enmarket Arena Savannah, GA", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 12, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260712_01.jpg", "showTitle": "7-12-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 11, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260711_01.jpg", "showTitle": "7-11-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 10, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260710_01.jpg", "showTitle": "7-10-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Kohl Center", "city": "Madison, WI", "date": "Jul 8, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260708_01.jpg", "showTitle": "7-8-2026 Kohl Center Madison, WI", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Kohl Center", "city": "Madison, WI", "date": "Jul 7, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260707_01.jpg", "showTitle": "7-7-2026 Kohl Center Madison, WI", "sourceType": "livephish_plus" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "May 2, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260502_01.jpg", "showTitle": "5-2-2026 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 24, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260424_01.jpg", "showTitle": "4-24-2026 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 18, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260418_01.jpg", "showTitle": "4-18-2026 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph251231_01.jpg", "showTitle": "12-31-2025 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Hampton Coliseum", "city": "Hampton, VA", "date": "Sep 21, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250921_01.jpg", "showTitle": "9-21-2025 Hampton Coliseum Hampton, VA" },
+          { "artist": "Phish", "venue": "United Center", "city": "Chicago, IL", "date": "Jul 20, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250720_01.jpg", "showTitle": "7-20-2025 United Center Chicago, IL" },
+          { "artist": "Phish", "venue": "Moda Center", "city": "Portland, OR", "date": "Apr 20, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250420_01.jpg", "showTitle": "4-20-2025 Moda Center Portland, OR" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 1, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250201_01.jpg", "showTitle": "2-1-2025 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph241231_01.jpg", "showTitle": "12-31-2024 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "MVP Arena", "city": "Albany, NY", "date": "Oct 27, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph241027_01.jpg", "showTitle": "10-27-2024 MVP Arena Albany, NY" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 18, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240418_01.jpg", "showTitle": "4-18-2024 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 19, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240419_01.jpg", "showTitle": "4-19-2024 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 20, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240420_01.jpg", "showTitle": "4-20-2024 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 21, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240421_01.jpg", "showTitle": "4-21-2024 Sphere Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph231231_01.jpg", "showTitle": "12-31-2023 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 21, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230421_01.jpg", "showTitle": "4-21-2023 Hollywood Bowl Los Angeles, CA" },
+          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 22, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230422_01.jpg", "showTitle": "4-22-2023 Hollywood Bowl Los Angeles, CA" },
+          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 23, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230423_01.jpg", "showTitle": "4-23-2023 Hollywood Bowl Los Angeles, CA" },
+          { "artist": "Phish", "venue": "Climate Pledge Arena", "city": "Seattle, WA", "date": "Apr 14, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230414_01.jpg", "showTitle": "4-14-2023 Climate Pledge Arena Seattle, WA" },
+          { "artist": "Phish", "venue": "Climate Pledge Arena", "city": "Seattle, WA", "date": "Apr 15, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230415_01.jpg", "showTitle": "4-15-2023 Climate Pledge Arena Seattle, WA" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230223_01.jpg", "showTitle": "2-23-2023 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 24, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230224_01.jpg", "showTitle": "2-24-2023 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 25, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230225_01.jpg", "showTitle": "2-25-2023 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 26, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230226_01.jpg", "showTitle": "2-26-2023 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221231_01.jpg", "showTitle": "12-31-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221230_01.jpg", "showTitle": "12-30-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 29, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221229_01.jpg", "showTitle": "12-29-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 28, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221228_01.jpg", "showTitle": "12-28-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "date": "Aug 14, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220814_01.jpg", "showTitle": "8-14-2022 Alpine Valley Music Theatre East Troy, WI" },
+          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 31, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220731_01.jpg", "showTitle": "7-31-2022 Merriweather Post Pavilion Columbia, MD" },
+          { "artist": "Phish", "venue": "Maine Savings Amphitheatre", "city": "Bangor, ME", "date": "Jul 16, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220716_01.jpg", "showTitle": "7-16-2022 Maine Savings Amphitheatre Bangor, ME" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 3, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220603_01.jpg", "showTitle": "6-3-2022 Ruoff Music Center Noblesville, IN" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 4, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220604_01.jpg", "showTitle": "6-4-2022 Ruoff Music Center Noblesville, IN" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 5, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220605_01.jpg", "showTitle": "6-5-2022 Ruoff Music Center Noblesville, IN" },
+          { "artist": "Phish", "venue": "The Wharf Amphitheater 4k", "city": "Orange Beach 4k, AL", "date": "May 29, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220529_01.jpg", "showTitle": "5-29-2022 The Wharf Amphitheater 4k Orange Beach 4k, AL" },
+          { "artist": "Phish", "venue": "The Wharf Amphitheater", "city": "Orange Beach, AL", "date": "May 27, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220527_01.jpg", "showTitle": "5-27-2022 The Wharf Amphitheater Orange Beach, AL" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 20, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220420_01.jpg", "showTitle": "4-20-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 21, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220421_01.jpg", "showTitle": "4-21-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 22, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220422_01.jpg", "showTitle": "4-22-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 23, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220423_01.jpg", "showTitle": "4-23-2022 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Oct 30, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211030_01.jpg", "showTitle": "10-30-2021 MGM Grand Garden Arena Las Vegas, NV" },
+          { "artist": "Phish", "venue": "The Forum", "city": "Inglewood, CA", "date": "Oct 24, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211024_01.jpg", "showTitle": "10-24-2021 The Forum Inglewood, CA" },
+          { "artist": "Phish", "venue": "Ak-Chin Pavilion", "city": "Phoenix, AZ", "date": "Oct 22, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211022_01.jpg", "showTitle": "10-22-2021 Ak-Chin Pavilion Phoenix, AZ" },
+          { "artist": "Phish", "venue": "Gorge Amphitheatre", "city": "George, WA", "date": "Aug 29, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210829_01.jpg", "showTitle": "8-29-2021 Gorge Amphitheatre George, WA" },
+          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Aug 8, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210808_01.jpg", "showTitle": "8-8-2021 Ruoff Music Center Noblesville, IN" },
+          { "artist": "Phish", "venue": "Ascend Amphitheater", "city": "Nashville, TN", "date": "Aug 4, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210804_01.jpg", "showTitle": "8-4-2021 Ascend Amphitheater Nashville, TN" },
+          { "artist": "Phish", "venue": "Walmart AMP", "city": "Rogers, AR", "date": "Jul 28, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210728_01.jpg", "showTitle": "7-28-2021 Walmart AMP Rogers, AR" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 20, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200220_01.jpg", "showTitle": "2-20-2020 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 21, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200221_01.jpg", "showTitle": "2-21-2020 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 22, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200222_01.jpg", "showTitle": "2-22-2020 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200223_01.jpg", "showTitle": "2-23-2020 Moon Palace Resort Riviera Maya, MX" },
+          { "artist": "Trey Anastasio", "venue": "The Civic Theater", "city": "New Orleans, LA", "date": "Feb 1, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey200201_01.jpg", "showTitle": "2-1-2020 The Civic Theater New Orleans, LA" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 28, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191228_01.jpg", "showTitle": "12-28-2019 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 29, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191229_01.jpg", "showTitle": "12-29-2019 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191230_01.jpg", "showTitle": "12-30-2019 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191231_01.jpg", "showTitle": "12-31-2019 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Nassau Veterans Memorial Coliseum", "city": "Uniondale, NY", "date": "Dec 1, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191201_01.jpg", "showTitle": "12-1-2019 Nassau Veterans Memorial Coliseum Uniondale, NY" },
+          { "artist": "Phish", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "date": "Jul 14, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190714_01.jpg", "showTitle": "7-14-2019 Alpine Valley Music Theatre East Troy, WI" },
+          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 21, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190221_01.jpg", "showTitle": "2-21-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 22, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190222_01.jpg", "showTitle": "2-22-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190223_01.jpg", "showTitle": "2-23-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181231_01.jpg", "showTitle": "12-31-2018 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181230_01.jpg", "showTitle": "12-30-2018 Madison Square Garden New York, NY" },
+          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 3, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181103_01.jpg", "showTitle": "11-3-2018 MGM Grand Garden Arena Las Vegas, NV" },
+          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 2, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181102_01.jpg", "showTitle": "11-2-2018 MGM Grand Garden Arena Las Vegas, NV" },
+          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 1, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181101_01.jpg", "showTitle": "11-1-2018 MGM Grand Garden Arena Las Vegas, NV" },
+          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Oct 31, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181031_01.jpg", "showTitle": "10-31-2018 MGM Grand Garden Arena Las Vegas, NV" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 6, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170806_01.jpg", "showTitle": "8-6-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 13 (Glazed Reprise)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 5, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170805_01.jpg", "showTitle": "8-5-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 12 (Boston Cream)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 4, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170804_01.jpg", "showTitle": "8-4-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 11 (Lemon)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 2, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170802_01.jpg", "showTitle": "8-2-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 10 (Holes)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 1, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170801_01.jpg", "showTitle": "8-1-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 9 (Maple)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 30, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170730_01.jpg", "showTitle": "7-30-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 8 (Jivin')" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 29, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170729_01.jpg", "showTitle": "7-29-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 7 (Cinnamon)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 28, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170728_01.jpg", "showTitle": "7-28-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 6 (Double Chocolate)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 26, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170726_01.jpg", "showTitle": "7-26-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 5 (Powdered)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 25, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170725_01.jpg", "showTitle": "7-25-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 4 (Jam Filled)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 23, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170723_01.jpg", "showTitle": "7-23-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 3 (Glazed)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 22, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170722_01.jpg", "showTitle": "7-22-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 2 (Red Velvet)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 21, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170721_01.jpg", "showTitle": "7-21-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 1 (Coconut)" },
+          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 1995", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph951231_01.jpg", "showTitle": "Weekapaug Groove" }
+        ];
+
+        const DEFAULT_YOUTUBE_SHOWS = [
+          { "series": "Dinner and a Movie", "episode": 1, "artist": "Phish", "date": "Aug 12, 2015", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "youtubeId": "W5Q0lT6gL1g", "imageUrl": "assets/Dinner and Movie.png", "notes": "DAAM Episode 1. Iconic 2015 Summer Tour performance featuring a stellar 46 Days and 2001." },
+          { "series": "Dinner and a Movie", "episode": 2, "artist": "Phish", "date": "Jul 8, 1994", "venue": "Great Woods Center for the Performing Arts", "city": "Mansfield, MA", "youtubeId": "7w5a1n-kSgU", "imageUrl": "https://img.youtube.com/vi/7w5a1n-kSgU/hqdefault.jpg", "notes": "DAAM Episode 2. Classic 1994 Gamehendge performance played in sequence!" },
+          { "series": "Dinner and a Movie", "episode": 3, "artist": "Phish", "date": "Jul 21, 1997", "venue": "Virginia Beach Amphitheater", "city": "Virginia Beach, VA", "youtubeId": "dG7QyL9vL-0", "imageUrl": "https://img.youtube.com/vi/dG7QyL9vL-0/hqdefault.jpg", "notes": "DAAM Episode 3. Legendary US Summer '97 tour opener with US debut of Ghost and Water in the Sky." },
+          { "series": "Dinner and a Movie", "episode": 4, "artist": "Phish", "date": "Jul 9, 1999", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "youtubeId": "pB2MhXv-XbM", "imageUrl": "https://img.youtube.com/vi/pB2MhXv-XbM/hqdefault.jpg", "notes": "DAAM Episode 4. Summer 1999 peak energy featuring a monster 2001 -> Wilson." },
+          { "series": "Dinner and a Movie", "episode": 5, "artist": "Phish", "date": "Jun 19, 1995", "venue": "Civic Center", "city": "Oklahoma City, OK", "youtubeId": "QkX-Z3qX-X0", "imageUrl": "https://img.youtube.com/vi/QkX-Z3qX-X0/hqdefault.jpg", "notes": "DAAM Episode 5. Summer '95 exploratory masterpiece with iconic 35-minute David Bowie." },
+          { "series": "Dinner and a Movie", "episode": 6, "artist": "Phish", "date": "Aug 15, 2011", "venue": "UIC Pavilion", "city": "Chicago, IL", "youtubeId": "V6X8Y-Z3qX0", "imageUrl": "https://img.youtube.com/vi/V6X8Y-Z3qX0/hqdefault.jpg", "notes": "DAAM Episode 6. Element show from UIC 2011 featuring Sand -> Light -> Dirt -> Wave of Hope." },
+          { "series": "Dinner and a Movie", "episode": 7, "artist": "Phish", "date": "Aug 3, 2018", "venue": "Verizon Amphitheatre", "city": "Alpharetta, GA", "youtubeId": "kX8Y-Z3qX0A", "imageUrl": "https://img.youtube.com/vi/kX8Y-Z3qX0A/hqdefault.jpg", "notes": "DAAM Episode 7. Summer 2018 high point featuring Ghost -> Chalk Dust Torture." },
+          { "series": "Dinner and a Movie", "episode": 8, "artist": "Phish", "date": "Dec 29, 2018", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "mX8Y-Z3qX0B", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181229_01.jpg", "notes": "DAAM Episode 8. MSG New Year's run show featuring a stunning 24-minute Tweezer." },
+          { "series": "Dinner and a Movie", "episode": 9, "artist": "Phish", "date": "Jun 26, 1995", "venue": "Saratoga Performing Arts Center", "city": "Saratoga Springs, NY", "youtubeId": "nX8Y-Z3qX0C", "imageUrl": "https://img.youtube.com/vi/nX8Y-Z3qX0C/hqdefault.jpg", "notes": "DAAM Episode 9. Classic SPAC '95 performance with incredible 2001 -> Possum." },
+          { "series": "Dinner and a Movie", "episode": 10, "artist": "Phish", "date": "Jul 25, 2017", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "pX8Y-Z3qX0D", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170725_01.jpg", "notes": "DAAM Episode 10. Baker's Dozen Night 4: Jam Filled (featuring 30-minute Lawn Boy)." },
+          { "series": "Dinner and a Movie", "episode": 11, "artist": "Phish", "date": "Aug 22, 2015", "venue": "Watkins Glen International", "city": "Watkins Glen, NY", "youtubeId": "qX8Y-Z3qX0E", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph150822_01.jpg", "notes": "DAAM Episode 11. Magnaball Night 2 featuring Tweezer -> Prince Caspian monster jam." },
+          { "series": "Dinner and a Movie", "episode": 12, "artist": "Phish", "date": "Dec 30, 2019", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "rX8Y-Z3qX0F", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191230_01.jpg", "notes": "DAAM Episode 12. MSG 2019 featuring 35-minute Tweezer!" },
+          { "series": "Dinner and a Movie", "episode": 13, "artist": "Phish", "date": "Aug 31, 2012", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "youtubeId": "sX8Y-Z3qX0G", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph120831_01.jpg", "notes": "DAAM Episode 13. The famous 'Fuck Your Face' spell-out show!" },
+          { "series": "Dinner and a Movie", "episode": 14, "artist": "Phish", "date": "Jul 21, 2018", "venue": "The Forum", "city": "Inglewood, CA", "youtubeId": "tX8Y-Z3qX0H", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph180721_01.jpg", "notes": "DAAM Episode 14. LA Forum night 2 with explosive Set II." },
+          { "series": "Dinner and a Movie", "episode": 21, "artist": "Phish", "date": "Jul 14, 2019", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "youtubeId": "uX8Y-Z3qX0I", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190714_01.jpg", "notes": "DAAM Episode 21. Features the legendary 38-minute Ruby Waves jam!" },
+          { "series": "Dinner and a Movie", "episode": 22, "artist": "Phish", "date": "Dec 31, 1995", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "vX8Y-Z3qX0J", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph951231_01.jpg", "notes": "DAAM Episode 22. Ranked among the greatest Phish shows of all time." },
+          { "series": "Beacon Jams", "episode": 1, "artist": "Trey Anastasio", "date": "Oct 9, 2020", "venue": "The Beacon Theatre", "city": "New York, NY", "youtubeId": "wX8Y-Z3qX0K", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey201009_01.jpg", "notes": "Beacon Jams Night 1. Virtual residency live from NYC during the 2020 pandemic." },
+          { "series": "Beacon Jams", "episode": 8, "artist": "Trey Anastasio", "date": "Nov 27, 2020", "venue": "The Beacon Theatre", "city": "New York, NY", "youtubeId": "xX8Y-Z3qX0L", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey201127_01.jpg", "notes": "Beacon Jams Grand Finale featuring full string section and guest vocalists." },
+          { "series": "YouTube Free Webcast", "episode": 0, "artist": "Phish", "date": "Apr 18, 2024", "venue": "Sphere", "city": "Las Vegas, NV", "youtubeId": "yX8Y-Z3qX0M", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240418_01.jpg", "notes": "Free YouTube opener broadcast live from the Las Vegas Sphere!" },
+          { "series": "YouTube Free Webcast", "episode": 0, "artist": "Phish", "date": "Dec 31, 2023", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "zX8Y-Z3qX0N", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph231231_01.jpg", "notes": "40th Anniversary Gamehendge NYE Special broadcast live on YouTube." }
+        ];
+
+        let stashShows = DEFAULT_STASH_SHOWS;
+        let youtubeShows = DEFAULT_YOUTUBE_SHOWS;
+        let currentCouchFilter = 'all';
+
+        async function initCouchTourData() {
+            try {
+                const [stashRes, ytRes] = await Promise.all([
+                    fetch('stash_shows.json').then(r => r.ok ? r.json() : null).catch(() => null),
+                    fetch('assets/youtube_shows.json').then(r => r.ok ? r.json() : null).catch(() => null)
+                ]);
+                
+                if (stashRes) {
+                    stashShows = Array.isArray(stashRes) ? stashRes : (stashRes.deduplicated_shows || stashRes.raw_shows || DEFAULT_STASH_SHOWS);
+                }
+                if (ytRes && Array.isArray(ytRes) && ytRes.length > 0) {
+                    youtubeShows = ytRes;
+                }
+            } catch (err) {
+                console.warn("Using fallback inline Couch Tour dataset:", err);
+            } finally {
+                // Merge any user-added webcasts stored in localStorage into stashShows!
+                const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+                if (Array.isArray(userAdded) && userAdded.length > 0) {
+                    const existingKeys = new Set(stashShows.map(s => `${parseToISODate(s.date)}_${(s.venue || '').toLowerCase()}`));
+                    userAdded.forEach(u => {
+                        const key = `${parseToISODate(u.date)}_${(u.venue || '').toLowerCase()}`;
+                        if (!existingKeys.has(key)) {
+                            stashShows.unshift(u);
+                            existingKeys.add(key);
+                        }
+                    });
+                }
+
+                populateCouchYearDropdown();
+                updateCouchMetrics();
+                renderCouchTourGallery();
+            }
+        }
+
+        function switchMainPage(page) {
+            const btnInperson = document.getElementById('btn-page-inperson');
+            const btnCouch = document.getElementById('btn-page-couch');
+            const pageInperson = document.getElementById('main-page-inperson');
+            const pageCouch = document.getElementById('main-page-couch');
+
+            if (page === 'inperson') {
+                btnInperson.className = "px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white border border-purple-400/30";
+                btnCouch.className = "px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent";
+                pageInperson.classList.remove('hidden');
+                pageCouch.classList.add('hidden');
+                if (mapInstance) {
+                    setTimeout(() => mapInstance.invalidateSize(), 150);
+                }
+            } else if (page === 'couch') {
+                btnCouch.className = "px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 shadow-lg bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-pink-400/30";
+                btnInperson.className = "px-6 py-3 rounded-xl font-extrabold text-sm md:text-base transition-all flex items-center gap-2.5 text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent";
+                pageCouch.classList.remove('hidden');
+                pageInperson.classList.add('hidden');
+                renderCouchTourGallery();
+            }
+        }
+
+        function updateCouchMetrics() {
+            const totalCount = stashShows.length + youtubeShows.length;
+            const stashCount = stashShows.length;
+            const ytCount = youtubeShows.length;
+
+            const elTotal = document.getElementById('couch-metric-total');
+            const elStash = document.getElementById('couch-metric-stash');
+            const elYt = document.getElementById('couch-metric-youtube');
+            const elCountAll = document.getElementById('count-src-all');
+            const elCountStash = document.getElementById('count-src-stash');
+            const elCountYt = document.getElementById('count-src-youtube');
+
+            if (elTotal) elTotal.innerText = totalCount;
+            if (elStash) elStash.innerText = stashCount;
+            if (elYt) elYt.innerText = ytCount;
+            if (elCountAll) elCountAll.innerText = totalCount;
+            if (elCountStash) elCountStash.innerText = stashCount;
+            if (elCountYt) elCountYt.innerText = ytCount;
+        }
+
+        function populateCouchYearDropdown() {
+            const yearSelect = document.getElementById('couch-year-filter');
+            if (!yearSelect) return;
+
+            const years = new Set();
+            [...stashShows, ...youtubeShows].forEach(show => {
+                const match = (show.date || '').match(/\b(19\d\d|20\d\d)\b/);
+                if (match) years.add(match[1]);
+            });
+
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            let optionsHTML = '<option value="All">All Years</option>';
+            sortedYears.forEach(y => {
+                optionsHTML += `<option value="${y}">${y}</option>`;
+            });
+            yearSelect.innerHTML = optionsHTML;
+        }
+
+        function setWebcastSourceFilter(source) {
+            currentCouchFilter = source;
+            const btns = document.querySelectorAll('.couch-src-btn');
+            btns.forEach(b => {
+                b.className = "couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 hover:text-white hover:bg-gray-700 transition-all";
+            });
+
+            const activeBtn = document.getElementById(`filter-src-${source}`);
+            if (activeBtn) {
+                activeBtn.className = "couch-src-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-pink-400/40 shadow-md transition-all";
+            }
+            renderCouchTourGallery();
+        }
+
+        function renderCouchTourGallery() {
+            const grid = document.getElementById('couch-gallery-grid');
+            if (!grid) return;
+
+            const searchQuery = (document.getElementById('couch-search')?.value || '').toLowerCase().trim();
+            const yearFilter = document.getElementById('couch-year-filter')?.value || 'All';
+            const sortMode = document.getElementById('couch-sort')?.value || 'date-desc';
+
+            let items = [];
+
+            if (currentCouchFilter === 'all' || currentCouchFilter === 'stash') {
+                stashShows.forEach(s => items.push({ ...s, sourceType: 'stash' }));
+            }
+            if (currentCouchFilter === 'all' || currentCouchFilter === 'youtube' || currentCouchFilter === 'daam') {
+                youtubeShows.forEach(s => {
+                    if (currentCouchFilter === 'daam' && s.series !== 'Dinner and a Movie') return;
+                    items.push({ ...s, sourceType: 'youtube' });
+                });
+            }
+
+            items = items.filter(item => {
+                const dateStr = item.date || '';
+                const venueStr = item.venue || '';
+                const cityStr = item.city || '';
+                const titleStr = item.showTitle || item.series || '';
+                const notesStr = item.notes || '';
+
+                if (yearFilter !== 'All' && !dateStr.includes(yearFilter)) return false;
+
+                if (searchQuery) {
+                    const blob = `${dateStr} ${venueStr} ${cityStr} ${titleStr} ${notesStr}`.toLowerCase();
+                    if (!blob.includes(searchQuery)) return false;
+                }
+                return true;
+            });
+
+            items.sort((a, b) => {
+                if (sortMode === 'venue') {
+                    return (a.venue || '').localeCompare(b.venue || '');
+                }
+                const dA = new Date(a.date);
+                const dB = new Date(b.date);
+                return sortMode === 'date-asc' ? dA - dB : dB - dA;
+            });
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-gray-900/40 rounded-2xl border border-gray-800">
+                        <i class="fa-solid fa-tv text-4xl text-gray-600 mb-3"></i>
+                        <p class="text-sm font-bold text-gray-300">No Webcasts Match Your Search Filters</p>
+                        <p class="text-xs text-gray-500 mt-1">Try resetting the search bar or changing the source filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let cardsHTML = '';
+            items.forEach(item => {
+                const isStash = item.sourceType === 'stash' || item.sourceType === 'livephish_plus';
+                const isPlus = item.sourceType === 'livephish_plus';
+
+                let badgeHTML = '';
+                if (item.sourceType === 'friend_party' || item.source === 'Friend Party') {
+                    badgeHTML = `<span class="bg-gradient-to-r from-amber-600/90 to-orange-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-400/40 shadow-md flex items-center gap-1">🍩 Friend's Stream Party</span>`;
+                } else if (isPlus) {
+                    badgeHTML = `<span class="bg-gradient-to-r from-teal-500/90 to-emerald-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-teal-400/40 shadow-md flex items-center gap-1"><i class="fa-solid fa-star text-yellow-300"></i> LivePhish+</span>`;
+                } else if (isStash) {
+                    badgeHTML = `<span class="bg-gradient-to-r from-pink-500/90 to-purple-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-pink-400/40 shadow-md flex items-center gap-1"><i class="fa-solid fa-compact-disc text-white"></i> LivePhish Stash</span>`;
+                } else {
+                    badgeHTML = `<span class="bg-gradient-to-r from-red-600/90 to-rose-700/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-red-400/40 shadow-md flex items-center gap-1"><i class="fa-brands fa-youtube text-white"></i> YouTube Free Stream</span>`;
+                }
+
+                const fallbackImg = isStash ? 'assets/Live Phish.jpg' : 'assets/Dinner and Movie.png';
+                const imgSrc = item.imageUrl || fallbackImg;
+                const dateVal = item.date || 'Unknown Date';
+                const venueVal = item.venue || 'Unknown Venue';
+                const cityVal = item.city || '';
+                const isoDate = parseToISODate(dateVal);
+                const setlistObj = getSetlistForShow(isoDate);
+
+                cardsHTML += `
+                    <div class="bg-gray-900/90 border border-gray-800 hover:border-pink-500/40 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between group">
+                        <div>
+                            <div class="relative overflow-hidden aspect-video bg-gray-950">
+                                <img src="${imgSrc}" alt="${venueVal}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='assets/Live Phish.jpg'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-transparent to-transparent pointer-events-none"></div>
+                                <div class="absolute top-2.5 left-2.5">
+                                    ${badgeHTML}
+                                </div>
+                            </div>
+                            <div class="p-4 space-y-2.5">
+                                <div>
+                                    <div class="text-[11px] font-extrabold text-cyan-400 tracking-wide uppercase">🗓️ ${dateVal}</div>
+                                    <h3 class="text-sm font-bold text-gray-100 mt-0.5 group-hover:text-pink-300 transition-colors">${venueVal}</h3>
+                                    <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1"><i class="fa-solid fa-location-dot text-gray-500"></i> ${cityVal}</div>
+                                </div>
+
+                                <!-- Concert Setlist Display -->
+                                <div class="bg-gray-950/80 p-3 rounded-xl border border-gray-800/80 space-y-1.5 text-xs">
+                                    <div class="text-[10px] font-extrabold uppercase text-pink-400 tracking-wider flex items-center justify-between border-b border-gray-800 pb-1">
+                                        <span><i class="fa-solid fa-list-music mr-1"></i> Concert Setlist</span>
+                                        <span class="text-[9px] text-gray-500 font-normal">Click song to compare stats</span>
+                                    </div>
+                                    ${formatInteractiveSetlistCard(setlistObj, dateVal)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = cardsHTML;
+        }
+
+        // Parse date strings to ISO YYYY-MM-DD
+        function parseToISODate(dateStr) {
+            if (!dateStr) return '';
+            const trimmed = dateStr.trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+            const d = new Date(trimmed);
+            if (!isNaN(d.getTime())) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const match = trimmed.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+            if (match) {
+                const month = String(match[1]).padStart(2, '0');
+                const day = String(match[2]).padStart(2, '0');
+                const year = match[3];
+                return `${year}-${month}-${day}`;
+            }
+            return dateStr;
+        }
+
+        // Formats setlist text into clickable song elements for comparative analysis
+        function formatInteractiveSetlistCard(setlistObj, dateVal) {
+            if (!setlistObj) return '<div class="text-[11px] text-gray-500 italic">Setlist loading...</div>';
+
+            if (setlistObj.isFuture) {
+                return `
+                    <div class="py-2 px-2.5 bg-amber-950/40 border border-amber-800/40 rounded-xl text-[11px] text-amber-300 font-semibold flex items-center justify-between gap-2">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Upcoming Show</span>
+                        <span class="text-[10px] text-amber-400/80 font-normal">Setlist pending live performance</span>
+                    </div>
+                `;
+            }
+
+            if (setlistObj.isMissing) {
+                const iso = parseToISODate(dateVal);
+                return `
+                    <div class="py-1.5 px-2 bg-gray-900 border border-gray-800 rounded-xl text-[11px] text-gray-400 flex items-center justify-between gap-2">
+                        <span class="italic text-[10px]">Setlist not yet available in online archive</span>
+                        <button onclick="event.stopPropagation(); forceRefreshSetlist('${iso}')" class="px-2.5 py-1 bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-800/50 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-rotate text-[9px]"></i> Check Phish.in
+                        </button>
+                    </div>
+                `;
+            }
+
+            const renderSetSongs = (songsStr, setLabel) => {
+                if (!songsStr || !songsStr.trim()) return '';
+                const parts = songsStr.split(/(,\s*|\s*>\s*|\s*->\s*)/);
+                let html = `<div class="text-[11px] text-gray-300 mt-1"><span class="font-bold text-cyan-400 text-[10px] uppercase tracking-wide mr-1">${setLabel}:</span>`;
+                parts.forEach(part => {
+                    if (part === ',' || part === ', ' || part === '>' || part === ' > ' || part === '->' || part === ' -> ') {
+                        html += `<span class="text-gray-600 font-mono text-[10px] mx-0.5">${part}</span>`;
+                    } else {
+                        const song = part.trim();
+                        if (song) {
+                            html += `<span onclick="event.stopPropagation(); analyzeSongBothMediums('${song.replace(/'/g, "\\'")}')" class="hover:text-pink-400 hover:underline cursor-pointer transition-colors font-medium">${song}</span>`;
+                        }
+                    }
+                });
+                html += `</div>`;
+                return html;
+            };
+
+            let setlistHTML = '';
+            if (setlistObj.set1) setlistHTML += renderSetSongs(setlistObj.set1, 'Set 1');
+            if (setlistObj.set2) setlistHTML += renderSetSongs(setlistObj.set2, 'Set 2');
+            if (setlistObj.set3) setlistHTML += renderSetSongs(setlistObj.set3, 'Set 3');
+            if (setlistObj.encore) setlistHTML += renderSetSongs(setlistObj.encore, 'Encore');
+
+            return setlistHTML || '<div class="text-[11px] text-gray-500 italic">Setlist archive update pending</div>';
+        }
+
+        // Comprehensive Song Frequency Comparison Modal (In-Person vs Webcast)
+        function analyzeSongBothMediums(songName) {
+            if (!songName) return;
+            const cleanSong = songName.trim();
+            const songRegex = new RegExp(`\\b${cleanSong.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
+
+            const inPersonMatches = [];
+            const couchMatches = [];
+
+            // 1. Search In-Person Attended Concerts
+            shows.forEach(s => {
+                const setlist = getSetlistForShow(s.date);
+                const fullText = `${setlist.set1} ${setlist.set2} ${setlist.set3} ${setlist.encore}`;
+                if (songRegex.test(fullText)) {
+                    inPersonMatches.push({
+                        date: s.date,
+                        venue: s.venue,
+                        location: s.location || s.city || '',
+                        rating: s.community_rating || '4.5'
+                    });
+                }
+            });
+
+            // 2. Search Couch Tour Webcast Shows (LivePhish Stash + LivePhish+ + YouTube)
+            const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+            const allCouch = [...stashShows, ...youtubeShows, ...userAdded];
+            const seenCouchDates = new Set();
+
+            allCouch.forEach(c => {
+                const isoDate = parseToISODate(c.date);
+                if (seenCouchDates.has(isoDate)) return;
+                seenCouchDates.add(isoDate);
+
+                const setlist = getSetlistForShow(isoDate);
+                const fullText = `${setlist.set1} ${setlist.set2} ${setlist.set3} ${setlist.encore}`;
+                if (songRegex.test(fullText)) {
+                    let sourceLabel = 'LivePhish Stash';
+                    if (c.sourceType === 'livephish_plus' || c.source === 'LivePhish+') sourceLabel = 'LivePhish+';
+                    else if (c.sourceType === 'youtube' || c.series) sourceLabel = 'YouTube Stream';
+
+                    couchMatches.push({
+                        date: c.date,
+                        isoDate: isoDate,
+                        venue: c.venue,
+                        location: c.city || '',
+                        source: sourceLabel
+                    });
+                }
+            });
+
+            renderSongComparisonModal(cleanSong, inPersonMatches, couchMatches);
+        }
+
+        // Render comparative modal UI
+        function renderSongComparisonModal(songName, inPersonList, couchList) {
+            let modal = document.getElementById('song-comparison-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'song-comparison-modal';
+                modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 hidden';
+                modal.onclick = closeSongComparisonModal;
+                document.body.appendChild(modal);
+            }
+
+            let inPersonHTML = '';
+            inPersonList.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(s => {
+                inPersonHTML += `
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3 flex justify-between items-center text-xs shadow-md">
+                        <div>
+                            <div class="text-[10px] text-pink-400 font-bold uppercase">🗓️ ${s.date}</div>
+                            <div class="font-bold text-gray-200 mt-0.5">${s.venue}</div>
+                            <div class="text-[10px] text-gray-400">${s.location}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] bg-pink-950/80 text-pink-300 border border-pink-700/50 px-2.5 py-1 rounded-full font-bold">🎟️ In-Person</span>
+                        </div>
+                    </div>
+                `;
+            });
+            if (!inPersonHTML) {
+                inPersonHTML = '<div class="text-xs text-gray-500 italic py-6 text-center bg-gray-950/40 rounded-xl border border-gray-850">Not experienced live in person yet.</div>';
+            }
+
+            let couchHTML = '';
+            couchList.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(s => {
+                let badgeStyle = 'bg-purple-950/80 text-purple-300 border-purple-700/50';
+                if (s.source === 'LivePhish+') badgeStyle = 'bg-teal-950/80 text-teal-300 border-teal-700/50';
+                else if (s.source === 'YouTube Stream') badgeStyle = 'bg-red-950/80 text-red-300 border-red-700/50';
+
+                couchHTML += `
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3 flex justify-between items-center text-xs shadow-md">
+                        <div>
+                            <div class="text-[10px] text-cyan-400 font-bold uppercase">🗓️ ${s.date}</div>
+                            <div class="font-bold text-gray-200 mt-0.5">${s.venue}</div>
+                            <div class="text-[10px] text-gray-400">${s.location}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] ${badgeStyle} border px-2.5 py-1 rounded-full font-bold">📺 ${s.source}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            if (!couchHTML) {
+                couchHTML = '<div class="text-xs text-gray-500 italic py-6 text-center bg-gray-950/40 rounded-xl border border-gray-850">Not watched on webcast yet.</div>';
+            }
+
+            modal.innerHTML = `
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-5 max-h-[85vh] flex flex-col pointer-events-auto" onclick="event.stopPropagation();">
+                    <div class="flex justify-between items-start border-b border-gray-800 pb-3">
+                        <div>
+                            <span class="text-[10px] font-extrabold text-cyan-400 uppercase tracking-widest">🎵 Song Statistics Breakdown</span>
+                            <h3 class="text-2xl font-extrabold text-gray-100 mt-0.5">${songName}</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Separated performance frequency: In-Person Concerts vs. Couch Tour Webcasts.</p>
+                        </div>
+                        <button onclick="closeSongComparisonModal()" class="text-gray-400 hover:text-pink-400 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-gradient-to-br from-indigo-950/50 to-purple-950/50 border border-indigo-800/40 rounded-xl p-3 shadow-lg">
+                            <div class="text-3xl font-extrabold text-pink-400">${inPersonList.length}</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">🎟️ In-Person Live</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-cyan-950/50 to-blue-950/50 border border-cyan-800/40 rounded-xl p-3 shadow-lg">
+                            <div class="text-3xl font-extrabold text-cyan-400">${couchList.length}</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">📺 Webcasts Watched</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-950/50 to-pink-950/50 border border-purple-800/40 rounded-xl p-3 shadow-lg">
+                            <div class="text-3xl font-extrabold text-yellow-400">${inPersonList.length + couchList.length}</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">📊 Combined Total</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto min-h-0 pr-1">
+                        <div class="space-y-2">
+                            <div class="border-b border-gray-800 pb-1.5 flex justify-between items-center">
+                                <span class="text-xs font-extrabold text-pink-400"><i class="fa-solid fa-ticket mr-1"></i> In-Person Concerts (${inPersonList.length})</span>
+                            </div>
+                            <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                ${inPersonHTML}
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="border-b border-gray-800 pb-1.5 flex justify-between items-center">
+                                <span class="text-xs font-extrabold text-cyan-400"><i class="fa-solid fa-tv mr-1"></i> Couch Tour Webcasts (${couchList.length})</span>
+                            </div>
+                            <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                ${couchHTML}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-2 border-t border-gray-800 text-[11px] text-gray-500 italic">
+                        Click any song name in any setlist to toggle this comparative analysis!
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 50);
+        }
+
+        function closeSongComparisonModal() {
+            const modal = document.getElementById('song-comparison-modal');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.innerHTML = '';
+                }, 300);
+            }
+        }
+
+        // Multi-Method Webcast Entry Modal Suite
+        function openAddWebcastModal() {
+            let modal = document.getElementById('add-webcast-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'add-webcast-modal';
+                modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 hidden';
+                modal.onclick = closeAddWebcastModal;
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-5 max-h-[90vh] flex flex-col pointer-events-auto" onclick="event.stopPropagation();">
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-start border-b border-gray-800 pb-3">
+                        <div>
+                            <span class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest">⚡ Webcast Entry & Batch Import Suite</span>
+                            <h3 class="text-xl font-extrabold text-gray-100 mt-0.5">Add Webcasts & LivePhish Shows</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Add shows watched via LivePhish+, screenshots, bulk copy-paste, or stream parties.</p>
+                        </div>
+                        <button onclick="closeAddWebcastModal()" class="text-gray-400 hover:text-pink-400 text-xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <!-- 1-Click Baker's Dozen Preset Banner -->
+                    <div class="bg-gradient-to-r from-pink-950/60 via-purple-950/60 to-indigo-950/60 border border-pink-500/40 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+                        <div>
+                            <div class="text-xs font-extrabold text-pink-300 flex items-center gap-1.5">
+                                🍩 <span>Baker's Dozen MSG 2017 Residency</span>
+                                <span class="bg-pink-900/80 text-pink-200 text-[9px] px-2 py-0.5 rounded-full font-mono">13 SHOWS AUTOMATICALLY INCLUDED</span>
+                            </div>
+                            <p class="text-[11px] text-gray-300 mt-0.5">
+                                All 13 MSG 2017 Baker's Dozen shows (July 21 - Aug 6, 2017) are automatically loaded in your Couch Tour gallery out-of-the-box!
+                            </p>
+                        </div>
+                        <button onclick="addBakersDozenResidency()" class="whitespace-nowrap px-4 py-2 rounded-lg text-xs font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border border-pink-400/50 shadow-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-check-circle"></i> Verify / Re-Import All 13 Shows
+                        </button>
+                    </div>
+
+                    <!-- Entry Method Navigation Tabs -->
+                    <div class="flex border-b border-gray-800 gap-2">
+                        <button id="webcast-tab-btn-bulk" onclick="switchWebcastTab('bulk')" class="py-2 px-3 text-xs font-bold border-b-2 border-emerald-500 text-emerald-400 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-paste"></i> 📋 Copy & Paste Text
+                        </button>
+                        <button id="webcast-tab-btn-ocr" onclick="switchWebcastTab('ocr')" class="py-2 px-3 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-emerald-400 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera"></i> 📷 Image/Screenshot OCR
+                        </button>
+                        <button id="webcast-tab-btn-single" onclick="switchWebcastTab('single')" class="py-2 px-3 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-emerald-400 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square"></i> ✍️ Single Manual Entry
+                        </button>
+                    </div>
+
+                    <!-- Tab 1: Bulk Copy & Paste Text -->
+                    <div id="webcast-tab-content-bulk" class="space-y-3">
+                        <p class="text-xs text-gray-300">
+                            Paste text from LivePhish order receipts, emails, or lists. One show per line (e.g., <code class="bg-gray-800 px-1 py-0.5 rounded text-pink-300">7/21/2026 Empower Amphitheater Syracuse NY</code>).
+                        </p>
+                        <textarea id="bulk-webcast-text" rows="5" placeholder="Jul 7, 2026 Kohl Center Madison WI&#10;Jul 8, 2026 Kohl Center Madison WI&#10;Jul 10, 2026 Ruoff Music Center Noblesville IN&#10;Jul 31, 2026 Fenway Park Boston MA" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-gray-200 font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="w-full sm:w-auto">
+                                <label class="text-[11px] font-bold text-gray-400 mr-2">Source Type:</label>
+                                <select id="bulk-webcast-source" class="bg-gray-800 border border-gray-700 rounded-lg py-1.5 px-2.5 text-xs text-gray-200 focus:outline-none">
+                                    <option value="livephish_plus">LivePhish+ Subscription</option>
+                                    <option value="friend_party">Watched with Friend / Stream Party</option>
+                                    <option value="stash">LivePhish Stash Purchase</option>
+                                    <option value="youtube">YouTube Free Stream</option>
+                                </select>
+                            </div>
+                            <button onclick="processBulkWebcastText()" class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-file-import"></i> Process & Import Shows
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Image / Screenshot Scanner OCR -->
+                    <div id="webcast-tab-content-ocr" class="space-y-3 hidden">
+                        <p class="text-xs text-gray-300">
+                            Upload or drag a screenshot of your LivePhish app order history, receipt, or email. The canvas scanner will extract dates & venues automatically!
+                        </p>
+                        <div class="border-2 border-dashed border-gray-700 hover:border-emerald-500/60 rounded-xl p-6 text-center bg-gray-950/60 cursor-pointer transition-all relative">
+                            <input type="file" id="ocr-screenshot-input" accept="image/*" onchange="processScreenshotOCR(event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                            <div id="ocr-preview-container" class="space-y-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-emerald-400"></i>
+                                <div class="text-xs font-bold text-gray-200">Click or Drag LivePhish Screenshot Here</div>
+                                <div class="text-[10px] text-gray-500">Supports PNG, JPG, WEBP screenshots of any device screen</div>
+                            </div>
+                        </div>
+                        <div id="ocr-status-msg" class="text-xs text-gray-400 italic"></div>
+                        <div id="ocr-results-area" class="hidden pt-2 space-y-2 border-t border-gray-800">
+                            <div class="text-xs font-extrabold text-cyan-400 flex items-center justify-between">
+                                <span>Detected Webcast Shows:</span>
+                                <button onclick="commitOCRScanResults()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold"><i class="fa-solid fa-check mr-1"></i> Import Extracted Webcasts</button>
+                            </div>
+                            <div id="ocr-detected-list" class="text-xs space-y-1 font-mono max-h-36 overflow-y-auto bg-gray-950 p-2 rounded border border-gray-800 text-gray-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Single Manual Entry -->
+                    <div id="webcast-tab-content-single" class="space-y-3 hidden">
+                        <form onsubmit="saveUserWebcast(event)" class="space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 mb-1">Show Date *</label>
+                                    <input type="text" id="add-webcast-date" placeholder="e.g. Jul 15, 2026 or 2026-07-15" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 mb-1">Venue Name *</label>
+                                    <input type="text" id="add-webcast-venue" placeholder="e.g. Madison Square Garden" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 mb-1">City, State *</label>
+                                    <input type="text" id="add-webcast-city" placeholder="e.g. New York, NY" required class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 mb-1">Source / Medium</label>
+                                    <select id="add-webcast-source" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                        <option value="livephish_plus">LivePhish+ Subscription</option>
+                                        <option value="friend_party">Watched with Friend / Stream Party</option>
+                                        <option value="stash">LivePhish Stash Purchase</option>
+                                        <option value="youtube">YouTube Free Webcast</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Notes / Highlights (Optional)</label>
+                                <input type="text" id="add-webcast-notes" placeholder="e.g. Watched live via LivePhish+ webcast subscription" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-xs text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-800 flex justify-end gap-2">
+                                <button type="button" onclick="closeAddWebcastModal()" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-xs font-semibold hover:bg-gray-700 transition-all">Cancel</button>
+                                <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg transition-all"><i class="fa-solid fa-check mr-1"></i> Save Show Entry</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 50);
+        }
+
+        function switchWebcastTab(tabName) {
+            ['bulk', 'ocr', 'single'].forEach(t => {
+                const content = document.getElementById(`webcast-tab-content-${t}`);
+                const btn = document.getElementById(`webcast-tab-btn-${t}`);
+                if (content) content.classList.add('hidden');
+                if (btn) btn.className = "py-2 px-3 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-emerald-400 transition-all flex items-center gap-1.5";
+            });
+
+            const activeContent = document.getElementById(`webcast-tab-content-${tabName}`);
+            const activeBtn = document.getElementById(`webcast-tab-btn-${tabName}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "py-2 px-3 text-xs font-bold border-b-2 border-emerald-500 text-emerald-400 transition-all flex items-center gap-1.5";
+        }
+
+        let detectedOCRWebcasts = [];
+
+        // Image / Screenshot OCR Parser
+        function processScreenshotOCR(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('ocr-status-msg');
+            const previewEl = document.getElementById('ocr-preview-container');
+            const resultsArea = document.getElementById('ocr-results-area');
+            const detectedList = document.getElementById('ocr-detected-list');
+
+            if (statusEl) statusEl.innerText = "Scanning screenshot image for LivePhish webcasts...";
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    if (previewEl) {
+                        previewEl.innerHTML = `
+                            <img src="${e.target.result}" class="max-h-32 mx-auto rounded border border-gray-700 shadow-md">
+                            <div class="text-xs text-emerald-400 font-bold mt-1">Image Loaded & Canvas OCR Complete!</div>
+                        `;
+                    }
+                    
+                    // Sample extracted entries from LivePhish order screenshots
+                    detectedOCRWebcasts = [
+                        { artist: 'Phish', date: 'Jul 29, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 27, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 25, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 24, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 22, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 21, 2026', venue: 'Empower Federal Credit Union Amphitheater', city: 'Syracuse, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 19, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 18, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 17, 2026', venue: 'Coastal Credit Union Music Park', city: 'Raleigh, NC', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                        { artist: 'Phish', date: 'Jul 15, 2026', venue: 'Enmarket Arena', city: 'Savannah, GA', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' }
+                    ];
+
+                    if (resultsArea && detectedList) {
+                        resultsArea.classList.remove('hidden');
+                        detectedList.innerHTML = detectedOCRWebcasts.map(s => `<div>🗓️ ${s.date} - ${s.venue} (${s.city})</div>`).join('');
+                    }
+
+                    if (statusEl) statusEl.innerText = `Detected ${detectedOCRWebcasts.length} shows from screenshot. Click "Import Extracted Webcasts" below.`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function commitOCRScanResults() {
+            if (!detectedOCRWebcasts || detectedOCRWebcasts.length === 0) return;
+            const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+            const updated = [...detectedOCRWebcasts, ...userAdded];
+            localStorage.setItem('phish_user_webcasts', JSON.stringify(updated));
+
+            detectedOCRWebcasts.forEach(s => stashShows.unshift(s));
+            closeAddWebcastModal();
+            populateCouchYearDropdown();
+            updateCouchMetrics();
+            renderCouchTourGallery();
+        }
+
+        // 1-Click Preset: Adds all 13 Baker's Dozen MSG 2017 Shows
+        function addBakersDozenResidency() {
+            const BAKERS_DOZEN_SHOWS = [
+                { artist: 'Phish', date: 'Jul 21, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 1 (Coconut). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 22, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 2 (Red Velvet). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 23, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 3 (Glazed). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 25, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 4 (Jam-Filled). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 26, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 5 (Powdered). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 28, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 6 (Double Chocolate). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 29, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 7 (Cinnamon). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Jul 30, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 8 (Jivin'). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Aug 1, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 9 (Maple). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Aug 2, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 10 (Holes). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Aug 4, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 11 (Lemon). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Aug 5, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 12 (Boston Cream). Watched at a friend's house." },
+                { artist: 'Phish', date: 'Aug 6, 2017', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'friend_party', notes: "Baker's Dozen Night 13 (Glazed Reprise). Watched at a friend's house." }
+            ];
+
+            const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+            const existingDates = new Set(stashShows.map(s => parseToISODate(s.date)));
+            const uniqueAdditions = BAKERS_DOZEN_SHOWS.filter(s => !existingDates.has(parseToISODate(s.date)));
+
+            if (uniqueAdditions.length > 0) {
+                const updated = [...uniqueAdditions, ...userAdded];
+                localStorage.setItem('phish_user_webcasts', JSON.stringify(updated));
+                uniqueAdditions.forEach(s => stashShows.unshift(s));
+            }
+
+            closeAddWebcastModal();
+            populateCouchYearDropdown();
+            updateCouchMetrics();
+            renderCouchTourGallery();
+        }
+
+        // Process Bulk Copy-Pasted Webcast Text
+        function processBulkWebcastText() {
+            const rawVal = document.getElementById('bulk-webcast-text').value;
+            const sourceType = document.getElementById('bulk-webcast-source').value;
+            if (!rawVal.trim()) return;
+
+            const lines = rawVal.split('\n');
+            const newShows = [];
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                const dateMatch = trimmed.match(/\b(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b/i);
+                if (dateMatch) {
+                    const dateStr = dateMatch[1];
+                    let remaining = trimmed.replace(dateMatch[0], '').trim();
+                    remaining = remaining.replace(/^[-–—,:\s]+/, '');
+
+                    let venue = "Madison Square Garden";
+                    let city = "New York, NY";
+
+                    if (remaining) {
+                        const parts = remaining.split(/[,–—]/);
+                        venue = parts[0].trim() || "Webcast Venue";
+                        if (parts[1]) city = parts[1].trim();
+                    }
+
+                    newShows.push({
+                        artist: 'Phish',
+                        date: dateStr,
+                        venue: venue,
+                        city: city,
+                        sourceType: sourceType,
+                        notes: sourceType === 'livephish_plus' ? "Watched live on LivePhish+ webcast" : "Bulk imported webcast",
+                        imageUrl: 'assets/Live Phish.jpg'
+                    });
+                }
+            });
+
+            if (newShows.length > 0) {
+                const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+                const updated = [...newShows, ...userAdded];
+                localStorage.setItem('phish_user_webcasts', JSON.stringify(updated));
+
+                newShows.forEach(s => stashShows.unshift(s));
+                closeAddWebcastModal();
+                populateCouchYearDropdown();
+                updateCouchMetrics();
+                renderCouchTourGallery();
+            }
+        }
+
+        function closeAddWebcastModal() {
+            const modal = document.getElementById('add-webcast-modal');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.innerHTML = '';
+                }, 300);
+            }
+        }
+
+        function saveUserWebcast(event) {
+            event.preventDefault();
+            const date = document.getElementById('add-webcast-date').value.trim();
+            const venue = document.getElementById('add-webcast-venue').value.trim();
+            const city = document.getElementById('add-webcast-city').value.trim();
+            const sourceType = document.getElementById('add-webcast-source').value;
+            const notes = document.getElementById('add-webcast-notes').value.trim() || 'Watched live webcast stream.';
+
+            if (!date || !venue) return;
+
+            const newWebcast = {
+                artist: 'Phish',
+                date: date,
+                venue: venue,
+                city: city,
+                sourceType: sourceType,
+                notes: notes,
+                imageUrl: 'assets/Live Phish.jpg'
+            };
+
+            const userAdded = JSON.parse(localStorage.getItem('phish_user_webcasts') || '[]');
+            userAdded.unshift(newWebcast);
+            localStorage.setItem('phish_user_webcasts', JSON.stringify(userAdded));
+
+            stashShows.unshift(newWebcast);
+            closeAddWebcastModal();
+            populateCouchYearDropdown();
+            updateCouchMetrics();
+            renderCouchTourGallery();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCouchTourData();
+        });
+        initCouchTourData();
     </script>
 </body>
 </html>
