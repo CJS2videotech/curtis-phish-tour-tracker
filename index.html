@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curtis Smith's Phish Tour Tracker & Spatial Footprint</title>
+    <title>My Phish Tour Tracker & Spatial Footprint</title>
     <!-- Home Screen Web App Icons -->
     <link rel="apple-touch-icon" href="assets/Live Phish.jpg">
     <link rel="icon" type="image/jpeg" href="assets/Live Phish.jpg">
@@ -306,7 +306,7 @@
             <img src="assets/Color logo.jpg" alt="Phish Logo" class="w-20 h-20 md:w-24 md:h-24 rounded-full border border-white/10 glow-logo">
             <div class="space-y-2">
                 <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">
-                    Curtis Smith's Phish Tour Tracker & Spatial Footprint
+                    My Phish Tour Tracker & Spatial Footprint
                 </h1>
                 <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
                     An Elite Personal Concert Memory Dashboard & Map. Explore your touring history, click shows in the archive grid to view **expanded setlists**, and manage ticket records.
@@ -452,14 +452,14 @@
                     <p class="text-xs text-gray-400">
                         Paste tour log listings below. The parser extracts single dates or splits ranges like <strong class="text-emerald-400">"August 16–17, 1997: The Great Went"</strong> into multiple distinct day entries. Matches venue history automatically!
                     </p>
-                    <textarea id="bulk-input-area" rows="10" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200"></textarea>
+                    <textarea id="bulk-input-area" rows="10" placeholder="e.g., December 3, 1992: Bogart's – Cincinnati, OH" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-200"></textarea>
                     
                     <div class="flex flex-wrap gap-3">
                         <button onclick="processBulkText()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-5 rounded-lg text-sm transition-all shadow-md flex items-center">
                             <i class="fa-solid fa-play mr-2"></i>Process & Add Shows
                         </button>
-                        <button onclick="resetToSeeds()" class="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-800 font-semibold py-2 px-4 rounded-lg text-xs transition-all">
-                            <i class="fa-solid fa-trash-can mr-1.5"></i>Wipe & Reload Default Seeds
+                        <button onclick="wipeAllShows()" class="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-800 font-semibold py-2 px-4 rounded-lg text-xs transition-all">
+                            <i class="fa-solid fa-trash-can mr-1.5"></i>Wipe All Shows
                         </button>
                     </div>
                 </div>
@@ -595,8 +595,8 @@
                 </div>
                 <!-- Action Controls -->
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="resetToSeeds()" class="bg-indigo-700/80 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3.5 rounded-lg text-xs flex items-center transition-all border border-indigo-400/30">
-                        <i class="fa-solid fa-rotate-left mr-1.5"></i>Restore 52 Attended Shows
+                    <button onclick="wipeAllShows()" class="bg-indigo-700/80 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3.5 rounded-lg text-xs flex items-center transition-all border border-indigo-400/30">
+                        <i class="fa-solid fa-rotate-left mr-1.5"></i>Wipe All Shows
                     </button>
                     <button onclick="downloadCSV()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-1.5 px-4 rounded-lg text-xs flex items-center transition-all">
                         <i class="fa-solid fa-download mr-1.5"></i>Download Complete Dataset as CSV
@@ -1221,70 +1221,7 @@
             if (typeof renderTable === 'function') renderTable();
         }
 
-        const SEED_TEXT = `1992
-December 3, 1992:  Bogart's – Cincinnati, OH  (First Bogart's show!)
-1993
-August 6, 1993:  Peacock Pavilion, Cincinnati Zoo – Cincinnati, OH  (The famous Tequila Zoo show!)
-August 14, 1993:  World Music Theatre – Tinley Park, IL
-December 31, 1993:  Centrum in Worcester – Worcester, MA
-1994
-June 25, 1994:  Nautica Stage – Cleveland, OH
-November 12, 1994:  KSU Mac Center – Kent, OH
-November 17, 1994:  Hara Arena – Dayton, OH  (Acoustic guest set with Rev. Jeff Mosier!)
-November 25, 1994:  UIC Pavilion – Chicago, IL
-1995
-June 19, 1995:  Deer Creek Music Center – Noblesville, IN
-June 20, 1995:  Blossom Music Center – Cuyahoga Falls, OH
-October 31, 1995:  Rosemont Horizon – Rosemont, IL  (The legendary Halloween "Quadrophenia" show!)
-November 30, 1995:  Ervin J. Nutter Center – Dayton, OH  (Featuring the legendary 30-minute Dayton Tweezer!)
-1996
-August 10, 1996:  Alpine Valley Music Theatre – East Troy, WI
-August 12, 1996:  Deer Creek Music Center – Noblesville, IN
-August 13, 1996:  Deer Creek Music Center – Noblesville, IN
-1997
-August 8, 1997:  New World Music Theatre – Tinley Park, IL
-August 9, 1997:  Alpine Valley Music Theatre – East Troy, WI
-August 10, 1997:  Deer Creek Music Center – Noblesville, IN
-August 11, 1997:  Deer Creek Music Center – Noblesville, IN
-August 16–17, 1997:  The Great Went – Loring Air Force Base, Limestone, ME
-December 5, 1997:  CSU Convocation Center – Cleveland, OH
-December 6, 1997:  The Palace of Auburn Hills – Auburn Hills, MI
-December 7, 1997:  Ervin J. Nutter Center – Dayton, OH  (Legendary show! AC/DC Bag > Psycho Killer, Tube > Dayton Jam)
-1998
-July 31, 1998:  Polaris Amphitheater – Columbus, OH
-August 8, 1998:  New World Music Theatre – Tinley Park, IL
-November 6, 1998:  Kohl Center – Madison, WI
-November 8, 1998:  UIC Pavilion – Chicago, IL
-November 9, 1998:  UIC Pavilion – Chicago, IL
-1999
-July 24, 1999:  Alpine Valley Music Theatre – East Troy, WI
-2000
-September 29, 2000:  Thomas & Mack Center – Las Vegas, NV
-September 30, 2000:  Thomas & Mack Center – Las Vegas, NV
-October 1, 2000:  Desert Sky Pavilion – Phoenix, AZ
-2003
-February 14, 2003:  The Forum – Inglewood, CA
-February 15, 2003:  Thomas & Mack Center – Las Vegas, NV
-February 16, 2003:  Thomas & Mack Center – Las Vegas, NV
-July 8, 2003:  Coors Amphitheatre – Chula Vista, CA
-July 9, 2003:  Shoreline Amphitheatre – Mountain View, CA
-July 10, 2003:  Shoreline Amphitheatre – Mountain View, CA
-July 23, 2003:  Cricket Pavilion – Phoenix, AZ
-2004
-April 15, 2004:  Thomas & Mack Center – Las Vegas, NV
-April 16, 2004:  Thomas & Mack Center – Las Vegas, NV
-April 17, 2004:  Thomas & Mack Center – Las Vegas, NV
-2009
-October 30 – November 1, 2009:  Festival 8 – Empire Polo Club, Indio, CA
-2013
-August 5, 2013:  Hollywood Bowl – Hollywood, CA
-2016
-June 24, 2016:  Wrigley Field – Chicago, IL
-June 25, 2016:  Wrigley Field – Chicago, IL
-June 26, 2016:  Klipsch Music Center – Noblesville, IN
-July 23, 2016:  Sleep Train Amphitheatre – Chula Vista, CA
-2021
-October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
+        const SEED_TEXT = ``;
 
         // Determine Phish Era dynamically from dates
         function getEra(dateString) {
@@ -1320,43 +1257,8 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
                 parsedStored = stored ? JSON.parse(stored) : null;
             } catch (e) {}
 
-            if (parsedStored && Array.isArray(parsedStored) && parsedStored.length > 25) {
+            if (parsedStored && Array.isArray(parsedStored)) {
                 shows = parsedStored;
-                shows.forEach(s => {
-                    if (s.date === "1993-08-06" && s.venue.includes("PNC Bank Arts Center")) {
-                        s.venue = "Peacock Pavilion, Cincinnati Zoo";
-                        s.location = "Cincinnati, OH";
-                        s.community_rating = 4.42;
-                    }
-                });
-                const hasDayton94 = shows.some(s => s.date === "1994-11-17");
-                if (!hasDayton94) {
-                    shows.push({
-                        id: Date.now() + Math.random(),
-                        date: "1994-11-17",
-                        venue: "Hara Arena",
-                        location: "Dayton, OH",
-                        notes: "Special acoustic guest set with Rev. Jeff Mosier! Added via database migration.",
-                        community_rating: 4.65,
-                        era: "1.0",
-                        source: "Database Migration",
-                        is_milestone: 1
-                    });
-                }
-                const hasHollywood13 = shows.some(s => s.date === "2013-08-05");
-                if (!hasHollywood13) {
-                    shows.push({
-                        id: Date.now() + Math.random(),
-                        date: "2013-08-05",
-                        venue: "Hollywood Bowl",
-                        location: "Hollywood, CA",
-                        notes: "Legendary show with no ticket stub! Added via database migration.",
-                        community_rating: 4.35,
-                        era: "3.0",
-                        source: "Database Migration",
-                        is_milestone: 0
-                    });
-                }
             } else {
                 shows = parseRawText(SEED_TEXT);
                 saveState();
@@ -2012,8 +1914,9 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
             }
         }
 
-        function resetToSeeds() {
-            shows = parseRawText(SEED_TEXT);
+        function wipeAllShows() {
+            shows = [];
+            localStorage.removeItem('phish_shows');
             refreshAll();
         }
 
@@ -2440,133 +2343,9 @@ October 22, 2021:  Ak-Chin Pavilion – Phoenix, AZ`;
         }
 
         // Couch Tour Data State & Engine
-        const DEFAULT_STASH_SHOWS = [
-          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 6, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260906_01.jpg", "showTitle": "9-6-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 5, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260905_01.jpg", "showTitle": "9-5-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "date": "Sep 4, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260904_01.jpg", "showTitle": "9-4-2026 Dick's Sporting Goods Park Commerce City, CO", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Fenway Park", "city": "Boston, MA", "date": "Aug 1, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260801_01.jpg", "showTitle": "8-1-2026 Fenway Park Boston, MA", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Fenway Park", "city": "Boston, MA", "date": "Jul 31, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260731_01.jpg", "showTitle": "7-31-2026 Fenway Park Boston, MA", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 29, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260729_01.jpg", "showTitle": "7-29-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 27, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260727_01.jpg", "showTitle": "7-27-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 25, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260725_01.jpg", "showTitle": "7-25-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 24, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260724_01.jpg", "showTitle": "7-24-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 22, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260722_01.jpg", "showTitle": "7-22-2026 Madison Square Garden New York, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Empower Federal Credit Union Amphitheater at Lakeview", "city": "Syracuse, NY", "date": "Jul 21, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260721_01.jpg", "showTitle": "7-21-2026 Empower Federal Credit Union Amphitheater Syracuse, NY", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 19, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260719_01.jpg", "showTitle": "7-19-2026 Merriweather Post Pavilion Columbia, MD", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 18, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260718_01.jpg", "showTitle": "7-18-2026 Merriweather Post Pavilion Columbia, MD", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Coastal Credit Union Music Park at Walnut Creek", "city": "Raleigh, NC", "date": "Jul 17, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260717_01.jpg", "showTitle": "7-17-2026 Coastal Credit Union Music Park Raleigh, NC", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Enmarket Arena", "city": "Savannah, GA", "date": "Jul 15, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260715_01.jpg", "showTitle": "7-15-2026 Enmarket Arena Savannah, GA", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Enmarket Arena", "city": "Savannah, GA", "date": "Jul 14, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260714_01.jpg", "showTitle": "7-14-2026 Enmarket Arena Savannah, GA", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 12, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260712_01.jpg", "showTitle": "7-12-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 11, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260711_01.jpg", "showTitle": "7-11-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jul 10, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260710_01.jpg", "showTitle": "7-10-2026 Ruoff Music Center Noblesville, IN", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Kohl Center", "city": "Madison, WI", "date": "Jul 8, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260708_01.jpg", "showTitle": "7-8-2026 Kohl Center Madison, WI", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Kohl Center", "city": "Madison, WI", "date": "Jul 7, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260707_01.jpg", "showTitle": "7-7-2026 Kohl Center Madison, WI", "sourceType": "livephish_plus" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "May 2, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260502_01.jpg", "showTitle": "5-2-2026 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 24, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260424_01.jpg", "showTitle": "4-24-2026 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 18, 2026", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph260418_01.jpg", "showTitle": "4-18-2026 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph251231_01.jpg", "showTitle": "12-31-2025 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Hampton Coliseum", "city": "Hampton, VA", "date": "Sep 21, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250921_01.jpg", "showTitle": "9-21-2025 Hampton Coliseum Hampton, VA" },
-          { "artist": "Phish", "venue": "United Center", "city": "Chicago, IL", "date": "Jul 20, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250720_01.jpg", "showTitle": "7-20-2025 United Center Chicago, IL" },
-          { "artist": "Phish", "venue": "Moda Center", "city": "Portland, OR", "date": "Apr 20, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250420_01.jpg", "showTitle": "4-20-2025 Moda Center Portland, OR" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 1, 2025", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph250201_01.jpg", "showTitle": "2-1-2025 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph241231_01.jpg", "showTitle": "12-31-2024 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "MVP Arena", "city": "Albany, NY", "date": "Oct 27, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph241027_01.jpg", "showTitle": "10-27-2024 MVP Arena Albany, NY" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 18, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240418_01.jpg", "showTitle": "4-18-2024 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 19, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240419_01.jpg", "showTitle": "4-19-2024 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 20, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240420_01.jpg", "showTitle": "4-20-2024 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Sphere", "city": "Las Vegas, NV", "date": "Apr 21, 2024", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240421_01.jpg", "showTitle": "4-21-2024 Sphere Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph231231_01.jpg", "showTitle": "12-31-2023 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 21, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230421_01.jpg", "showTitle": "4-21-2023 Hollywood Bowl Los Angeles, CA" },
-          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 22, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230422_01.jpg", "showTitle": "4-22-2023 Hollywood Bowl Los Angeles, CA" },
-          { "artist": "Phish", "venue": "Hollywood Bowl", "city": "Los Angeles, CA", "date": "Apr 23, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230423_01.jpg", "showTitle": "4-23-2023 Hollywood Bowl Los Angeles, CA" },
-          { "artist": "Phish", "venue": "Climate Pledge Arena", "city": "Seattle, WA", "date": "Apr 14, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230414_01.jpg", "showTitle": "4-14-2023 Climate Pledge Arena Seattle, WA" },
-          { "artist": "Phish", "venue": "Climate Pledge Arena", "city": "Seattle, WA", "date": "Apr 15, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230415_01.jpg", "showTitle": "4-15-2023 Climate Pledge Arena Seattle, WA" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230223_01.jpg", "showTitle": "2-23-2023 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 24, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230224_01.jpg", "showTitle": "2-24-2023 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 25, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230225_01.jpg", "showTitle": "2-25-2023 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 26, 2023", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph230226_01.jpg", "showTitle": "2-26-2023 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221231_01.jpg", "showTitle": "12-31-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221230_01.jpg", "showTitle": "12-30-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 29, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221229_01.jpg", "showTitle": "12-29-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 28, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph221228_01.jpg", "showTitle": "12-28-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "date": "Aug 14, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220814_01.jpg", "showTitle": "8-14-2022 Alpine Valley Music Theatre East Troy, WI" },
-          { "artist": "Phish", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "date": "Jul 31, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220731_01.jpg", "showTitle": "7-31-2022 Merriweather Post Pavilion Columbia, MD" },
-          { "artist": "Phish", "venue": "Maine Savings Amphitheatre", "city": "Bangor, ME", "date": "Jul 16, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220716_01.jpg", "showTitle": "7-16-2022 Maine Savings Amphitheatre Bangor, ME" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 3, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220603_01.jpg", "showTitle": "6-3-2022 Ruoff Music Center Noblesville, IN" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 4, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220604_01.jpg", "showTitle": "6-4-2022 Ruoff Music Center Noblesville, IN" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Jun 5, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220605_01.jpg", "showTitle": "6-5-2022 Ruoff Music Center Noblesville, IN" },
-          { "artist": "Phish", "venue": "The Wharf Amphitheater 4k", "city": "Orange Beach 4k, AL", "date": "May 29, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220529_01.jpg", "showTitle": "5-29-2022 The Wharf Amphitheater 4k Orange Beach 4k, AL" },
-          { "artist": "Phish", "venue": "The Wharf Amphitheater", "city": "Orange Beach, AL", "date": "May 27, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220527_01.jpg", "showTitle": "5-27-2022 The Wharf Amphitheater Orange Beach, AL" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 20, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220420_01.jpg", "showTitle": "4-20-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 21, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220421_01.jpg", "showTitle": "4-21-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 22, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220422_01.jpg", "showTitle": "4-22-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Apr 23, 2022", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph220423_01.jpg", "showTitle": "4-23-2022 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Oct 30, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211030_01.jpg", "showTitle": "10-30-2021 MGM Grand Garden Arena Las Vegas, NV" },
-          { "artist": "Phish", "venue": "The Forum", "city": "Inglewood, CA", "date": "Oct 24, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211024_01.jpg", "showTitle": "10-24-2021 The Forum Inglewood, CA" },
-          { "artist": "Phish", "venue": "Ak-Chin Pavilion", "city": "Phoenix, AZ", "date": "Oct 22, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph211022_01.jpg", "showTitle": "10-22-2021 Ak-Chin Pavilion Phoenix, AZ" },
-          { "artist": "Phish", "venue": "Gorge Amphitheatre", "city": "George, WA", "date": "Aug 29, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210829_01.jpg", "showTitle": "8-29-2021 Gorge Amphitheatre George, WA" },
-          { "artist": "Phish", "venue": "Ruoff Music Center", "city": "Noblesville, IN", "date": "Aug 8, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210808_01.jpg", "showTitle": "8-8-2021 Ruoff Music Center Noblesville, IN" },
-          { "artist": "Phish", "venue": "Ascend Amphitheater", "city": "Nashville, TN", "date": "Aug 4, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210804_01.jpg", "showTitle": "8-4-2021 Ascend Amphitheater Nashville, TN" },
-          { "artist": "Phish", "venue": "Walmart AMP", "city": "Rogers, AR", "date": "Jul 28, 2021", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph210728_01.jpg", "showTitle": "7-28-2021 Walmart AMP Rogers, AR" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 20, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200220_01.jpg", "showTitle": "2-20-2020 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 21, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200221_01.jpg", "showTitle": "2-21-2020 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 22, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200222_01.jpg", "showTitle": "2-22-2020 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Moon Palace Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph200223_01.jpg", "showTitle": "2-23-2020 Moon Palace Resort Riviera Maya, MX" },
-          { "artist": "Trey Anastasio", "venue": "The Civic Theater", "city": "New Orleans, LA", "date": "Feb 1, 2020", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey200201_01.jpg", "showTitle": "2-1-2020 The Civic Theater New Orleans, LA" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 28, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191228_01.jpg", "showTitle": "12-28-2019 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 29, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191229_01.jpg", "showTitle": "12-29-2019 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191230_01.jpg", "showTitle": "12-30-2019 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191231_01.jpg", "showTitle": "12-31-2019 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Nassau Veterans Memorial Coliseum", "city": "Uniondale, NY", "date": "Dec 1, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191201_01.jpg", "showTitle": "12-1-2019 Nassau Veterans Memorial Coliseum Uniondale, NY" },
-          { "artist": "Phish", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "date": "Jul 14, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190714_01.jpg", "showTitle": "7-14-2019 Alpine Valley Music Theatre East Troy, WI" },
-          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 21, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190221_01.jpg", "showTitle": "2-21-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 22, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190222_01.jpg", "showTitle": "2-22-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Barcelo Maya Beach Resort", "city": "Riviera Maya, MX", "date": "Feb 23, 2019", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190223_01.jpg", "showTitle": "2-23-2019 Barcelo Maya Beach Resort Riviera Maya, MX" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181231_01.jpg", "showTitle": "12-31-2018 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 30, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181230_01.jpg", "showTitle": "12-30-2018 Madison Square Garden New York, NY" },
-          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 3, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181103_01.jpg", "showTitle": "11-3-2018 MGM Grand Garden Arena Las Vegas, NV" },
-          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 2, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181102_01.jpg", "showTitle": "11-2-2018 MGM Grand Garden Arena Las Vegas, NV" },
-          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Nov 1, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181101_01.jpg", "showTitle": "11-1-2018 MGM Grand Garden Arena Las Vegas, NV" },
-          { "artist": "Phish", "venue": "MGM Grand Garden Arena", "city": "Las Vegas, NV", "date": "Oct 31, 2018", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181031_01.jpg", "showTitle": "10-31-2018 MGM Grand Garden Arena Las Vegas, NV" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 6, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170806_01.jpg", "showTitle": "8-6-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 13 (Glazed Reprise)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 5, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170805_01.jpg", "showTitle": "8-5-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 12 (Boston Cream)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 4, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170804_01.jpg", "showTitle": "8-4-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 11 (Lemon)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 2, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170802_01.jpg", "showTitle": "8-2-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 10 (Holes)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Aug 1, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170801_01.jpg", "showTitle": "8-1-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 9 (Maple)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 30, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170730_01.jpg", "showTitle": "7-30-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 8 (Jivin')" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 29, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170729_01.jpg", "showTitle": "7-29-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 7 (Cinnamon)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 28, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170728_01.jpg", "showTitle": "7-28-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 6 (Double Chocolate)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 26, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170726_01.jpg", "showTitle": "7-26-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 5 (Powdered)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 25, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170725_01.jpg", "showTitle": "7-25-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 4 (Jam Filled)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 23, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170723_01.jpg", "showTitle": "7-23-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 3 (Glazed)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 22, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170722_01.jpg", "showTitle": "7-22-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 2 (Red Velvet)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Jul 21, 2017", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170721_01.jpg", "showTitle": "7-21-2017 Madison Square Garden New York, NY", "sourceType": "friend_party", "notes": "Baker's Dozen Night 1 (Coconut)" },
-          { "artist": "Phish", "venue": "Madison Square Garden", "city": "New York, NY", "date": "Dec 31, 1995", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph951231_01.jpg", "showTitle": "Weekapaug Groove" }
-        ];
+        const DEFAULT_STASH_SHOWS = [];
 
-        const DEFAULT_YOUTUBE_SHOWS = [
-          { "series": "Dinner and a Movie", "episode": 1, "artist": "Phish", "date": "Aug 12, 2015", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "youtubeId": "W5Q0lT6gL1g", "imageUrl": "assets/Dinner and Movie.png", "notes": "DAAM Episode 1. Iconic 2015 Summer Tour performance featuring a stellar 46 Days and 2001." },
-          { "series": "Dinner and a Movie", "episode": 2, "artist": "Phish", "date": "Jul 8, 1994", "venue": "Great Woods Center for the Performing Arts", "city": "Mansfield, MA", "youtubeId": "7w5a1n-kSgU", "imageUrl": "https://img.youtube.com/vi/7w5a1n-kSgU/hqdefault.jpg", "notes": "DAAM Episode 2. Classic 1994 Gamehendge performance played in sequence!" },
-          { "series": "Dinner and a Movie", "episode": 3, "artist": "Phish", "date": "Jul 21, 1997", "venue": "Virginia Beach Amphitheater", "city": "Virginia Beach, VA", "youtubeId": "dG7QyL9vL-0", "imageUrl": "https://img.youtube.com/vi/dG7QyL9vL-0/hqdefault.jpg", "notes": "DAAM Episode 3. Legendary US Summer '97 tour opener with US debut of Ghost and Water in the Sky." },
-          { "series": "Dinner and a Movie", "episode": 4, "artist": "Phish", "date": "Jul 9, 1999", "venue": "Merriweather Post Pavilion", "city": "Columbia, MD", "youtubeId": "pB2MhXv-XbM", "imageUrl": "https://img.youtube.com/vi/pB2MhXv-XbM/hqdefault.jpg", "notes": "DAAM Episode 4. Summer 1999 peak energy featuring a monster 2001 -> Wilson." },
-          { "series": "Dinner and a Movie", "episode": 5, "artist": "Phish", "date": "Jun 19, 1995", "venue": "Civic Center", "city": "Oklahoma City, OK", "youtubeId": "QkX-Z3qX-X0", "imageUrl": "https://img.youtube.com/vi/QkX-Z3qX-X0/hqdefault.jpg", "notes": "DAAM Episode 5. Summer '95 exploratory masterpiece with iconic 35-minute David Bowie." },
-          { "series": "Dinner and a Movie", "episode": 6, "artist": "Phish", "date": "Aug 15, 2011", "venue": "UIC Pavilion", "city": "Chicago, IL", "youtubeId": "V6X8Y-Z3qX0", "imageUrl": "https://img.youtube.com/vi/V6X8Y-Z3qX0/hqdefault.jpg", "notes": "DAAM Episode 6. Element show from UIC 2011 featuring Sand -> Light -> Dirt -> Wave of Hope." },
-          { "series": "Dinner and a Movie", "episode": 7, "artist": "Phish", "date": "Aug 3, 2018", "venue": "Verizon Amphitheatre", "city": "Alpharetta, GA", "youtubeId": "kX8Y-Z3qX0A", "imageUrl": "https://img.youtube.com/vi/kX8Y-Z3qX0A/hqdefault.jpg", "notes": "DAAM Episode 7. Summer 2018 high point featuring Ghost -> Chalk Dust Torture." },
-          { "series": "Dinner and a Movie", "episode": 8, "artist": "Phish", "date": "Dec 29, 2018", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "mX8Y-Z3qX0B", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph181229_01.jpg", "notes": "DAAM Episode 8. MSG New Year's run show featuring a stunning 24-minute Tweezer." },
-          { "series": "Dinner and a Movie", "episode": 9, "artist": "Phish", "date": "Jun 26, 1995", "venue": "Saratoga Performing Arts Center", "city": "Saratoga Springs, NY", "youtubeId": "nX8Y-Z3qX0C", "imageUrl": "https://img.youtube.com/vi/nX8Y-Z3qX0C/hqdefault.jpg", "notes": "DAAM Episode 9. Classic SPAC '95 performance with incredible 2001 -> Possum." },
-          { "series": "Dinner and a Movie", "episode": 10, "artist": "Phish", "date": "Jul 25, 2017", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "pX8Y-Z3qX0D", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph170725_01.jpg", "notes": "DAAM Episode 10. Baker's Dozen Night 4: Jam Filled (featuring 30-minute Lawn Boy)." },
-          { "series": "Dinner and a Movie", "episode": 11, "artist": "Phish", "date": "Aug 22, 2015", "venue": "Watkins Glen International", "city": "Watkins Glen, NY", "youtubeId": "qX8Y-Z3qX0E", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph150822_01.jpg", "notes": "DAAM Episode 11. Magnaball Night 2 featuring Tweezer -> Prince Caspian monster jam." },
-          { "series": "Dinner and a Movie", "episode": 12, "artist": "Phish", "date": "Dec 30, 2019", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "rX8Y-Z3qX0F", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph191230_01.jpg", "notes": "DAAM Episode 12. MSG 2019 featuring 35-minute Tweezer!" },
-          { "series": "Dinner and a Movie", "episode": 13, "artist": "Phish", "date": "Aug 31, 2012", "venue": "Dick's Sporting Goods Park", "city": "Commerce City, CO", "youtubeId": "sX8Y-Z3qX0G", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph120831_01.jpg", "notes": "DAAM Episode 13. The famous 'Fuck Your Face' spell-out show!" },
-          { "series": "Dinner and a Movie", "episode": 14, "artist": "Phish", "date": "Jul 21, 2018", "venue": "The Forum", "city": "Inglewood, CA", "youtubeId": "tX8Y-Z3qX0H", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph180721_01.jpg", "notes": "DAAM Episode 14. LA Forum night 2 with explosive Set II." },
-          { "series": "Dinner and a Movie", "episode": 21, "artist": "Phish", "date": "Jul 14, 2019", "venue": "Alpine Valley Music Theatre", "city": "East Troy, WI", "youtubeId": "uX8Y-Z3qX0I", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph190714_01.jpg", "notes": "DAAM Episode 21. Features the legendary 38-minute Ruby Waves jam!" },
-          { "series": "Dinner and a Movie", "episode": 22, "artist": "Phish", "date": "Dec 31, 1995", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "vX8Y-Z3qX0J", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph951231_01.jpg", "notes": "DAAM Episode 22. Ranked among the greatest Phish shows of all time." },
-          { "series": "Beacon Jams", "episode": 1, "artist": "Trey Anastasio", "date": "Oct 9, 2020", "venue": "The Beacon Theatre", "city": "New York, NY", "youtubeId": "wX8Y-Z3qX0K", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey201009_01.jpg", "notes": "Beacon Jams Night 1. Virtual residency live from NYC during the 2020 pandemic." },
-          { "series": "Beacon Jams", "episode": 8, "artist": "Trey Anastasio", "date": "Nov 27, 2020", "venue": "The Beacon Theatre", "city": "New York, NY", "youtubeId": "xX8Y-Z3qX0L", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/trey201127_01.jpg", "notes": "Beacon Jams Grand Finale featuring full string section and guest vocalists." },
-          { "series": "YouTube Free Webcast", "episode": 0, "artist": "Phish", "date": "Apr 18, 2024", "venue": "Sphere", "city": "Las Vegas, NV", "youtubeId": "yX8Y-Z3qX0M", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph240418_01.jpg", "notes": "Free YouTube opener broadcast live from the Las Vegas Sphere!" },
-          { "series": "YouTube Free Webcast", "episode": 0, "artist": "Phish", "date": "Dec 31, 2023", "venue": "Madison Square Garden", "city": "New York, NY", "youtubeId": "zX8Y-Z3qX0N", "imageUrl": "https://s3.amazonaws.com/static.nugs.net/assets/phish/images/pix/shows/ph231231_01.jpg", "notes": "40th Anniversary Gamehendge NYE Special broadcast live on YouTube." }
-        ];
+        const DEFAULT_YOUTUBE_SHOWS = [];
 
         let stashShows = DEFAULT_STASH_SHOWS;
         let youtubeShows = DEFAULT_YOUTUBE_SHOWS;
