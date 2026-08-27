@@ -1781,6 +1781,7 @@
 
                     // Parent Row
                     const tr = document.createElement('tr');
+                    tr.dataset.showId = s.id;
                     tr.className = `cursor-pointer hover:bg-gray-800/40 transition-colors ${isExpanded ? 'bg-gray-850 border-l-2 border-emerald-500' : ''}`;
                     tr.onclick = () => toggleShowSetlist(s.id);
                     tr.innerHTML = `
@@ -2290,16 +2291,13 @@
             renderTable();
             
             setTimeout(() => {
-                const trs = document.querySelectorAll('#concert-table-body tr');
-                for (let tr of trs) {
-                    if (tr.onclick && tr.onclick.toString().includes(showId)) {
-                        tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        tr.classList.add('bg-cyan-950/40');
-                        setTimeout(() => {
-                            tr.classList.remove('bg-cyan-950/40');
-                        }, 2000);
-                        break;
-                    }
+                const tr = document.querySelector(`#concert-table-body tr[data-show-id="${showId}"]`);
+                if (tr) {
+                    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    tr.classList.add('bg-cyan-950/40');
+                    setTimeout(() => {
+                        tr.classList.remove('bg-cyan-950/40');
+                    }, 2000);
                 }
             }, 150);
         }
