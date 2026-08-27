@@ -1182,7 +1182,9 @@
                             
                             try {
                                 localStorage.setItem('phish_setlist_cache', JSON.stringify(fetchedSetlists));
-                            } catch (e) {}
+                            } catch (e) {
+                                console.warn("Failed to cache setlist in localStorage:", e);
+                            }
                             
                             if (typeof refreshAll === 'function') refreshAll();
                             if (typeof renderCouchTourGallery === 'function') renderCouchTourGallery();
@@ -1215,7 +1217,9 @@
             delete fetchedSetlists[dateString];
             try {
                 localStorage.setItem('phish_setlist_cache', JSON.stringify(fetchedSetlists));
-            } catch(e) {}
+            } catch (e) {
+                console.warn("Failed to cache setlist in localStorage:", e);
+            }
             getSetlistForShow(dateString);
             if (typeof renderCouchTourGallery === 'function') renderCouchTourGallery();
             if (typeof renderTable === 'function') renderTable();
