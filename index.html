@@ -1560,11 +1560,15 @@
             selectEl.appendChild(optionDefault);
 
             // Fetch list of active visited venues
+            const venueDBKeys = Object.keys(VENUE_DB);
+            const lowerVenueDBKeys = venueDBKeys.map(k => k.toLowerCase());
             const uniqueVenues = [...new Set(shows.map(s => {
-                return Object.keys(VENUE_DB).find(key => 
-                    s.venue.toLowerCase().includes(key.toLowerCase()) || 
-                    key.toLowerCase().includes(s.venue.toLowerCase())
-                ) || s.venue;
+                const lowerSVenue = s.venue.toLowerCase();
+                const foundIndex = lowerVenueDBKeys.findIndex(lowerKey =>
+                    lowerSVenue.includes(lowerKey) ||
+                    lowerKey.includes(lowerSVenue)
+                );
+                return foundIndex !== -1 ? venueDBKeys[foundIndex] : s.venue;
             }))].sort();
 
             uniqueVenues.forEach(v => {
