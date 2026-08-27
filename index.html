@@ -1778,6 +1778,100 @@
             renderTable();
         }
 
+        function createMainRow(show, isExpanded, showEra) {
+            const tr = document.createElement('tr');
+            tr.className = `cursor-pointer hover:bg-gray-800/40 transition-colors ${isExpanded ? 'bg-gray-850 border-l-2 border-emerald-500' : ''}`;
+            tr.onclick = () => toggleShowSetlist(show.id);
+            tr.innerHTML = `
+                <td class="py-3 px-2 text-center text-gray-500">
+                    <i class="fa-solid ${isExpanded ? 'fa-chevron-up text-emerald-400' : 'fa-chevron-down'} text-xs"></i>
+                </td>
+                <td class="py-3 px-4 font-semibold text-emerald-400 whitespace-nowrap">${show.date}</td>
+                <td class="py-3 px-4 text-gray-200 font-medium">${show.venue}</td>
+                <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${show.location || '-'}</td>
+                <td class="py-3 px-4 text-yellow-500 font-mono font-bold whitespace-nowrap">⭐ ${parseFloat(show.community_rating).toFixed(2)}</td>
+                <td class="py-3 px-4 text-pink-400 font-mono font-bold whitespace-nowrap">${show.personal_rating ? '💖 ' + show.personal_rating.toFixed(1) : '<span class="text-gray-650 italic text-[10px]">- unrated -</span>'}</td>
+                <td class="py-3 px-4 text-gray-400 font-mono whitespace-nowrap">${showEra}</td>
+                <td class="py-3 px-4 whitespace-nowrap">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${show.is_milestone ? 'bg-yellow-950/80 text-yellow-400 border border-yellow-800' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
+                        ${show.is_milestone ? 'Milestone' : 'Standard'}
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-gray-400 max-w-xs truncate" title="${show.notes || ''}">${show.notes || '-'}</td>
+                <td class="py-3 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation();">
+                    <button onclick="deleteShow(${show.id})" class="text-red-400 hover:text-red-300 font-medium hover:underline text-[11px] ml-2">
+                        <i class="fa-solid fa-trash-can mr-1"></i>Delete
+                    </button>
+                </td>
+            `;
+            return tr;
+        }
+
+        function createExpandedRow(show, showEra, setlist) {
+            const dropTr = document.createElement('tr');
+            dropTr.className = "bg-gray-950 border-b border-gray-800";
+            dropTr.innerHTML = `
+                <td colspan="10" class="py-4 px-6">
+                    <div class="space-y-3 border-l-2 border-emerald-500/50 pl-4 py-1">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-list-music text-[10px]"></i> Expanded Setlist Breakdown
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 text-xs">
+                            <!-- Sets -->
+                            <div class="md:col-span-8 space-y-2">
+                                <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                    <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 1 (Click songs to see stats):</span>
+                                    <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set1)}</p>
+                                </div>
+                                <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                    <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 2:</span>
+                                    <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set2)}</p>
+                                </div>
+                                ${setlist.set3 ? `
+                                <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                    <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 3:</span>
+                                    <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set3)}</p>
+                                </div>` : ''}
+                                <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
+                                    <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Encore:</span>
+                                    <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.encore)}</p>
+                                </div>
+                            </div>
+
+                            <!-- Highlights -->
+                            <div class="md:col-span-4 bg-gray-900/40 p-3 rounded border border-gray-850 space-y-3">
+                                <div>
+                                    <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Concert Notes / Jams:</span>
+                                    <p class="text-gray-400 mt-1 text-[11px] italic">${show.notes || 'No custom notes provided.'}</p>
+                                </div>
+                                <div class="border-t border-gray-800/80 pt-2 flex justify-between text-[11px]">
+                                    <span class="text-gray-500">Community Rank:</span>
+                                    <span class="text-yellow-400 font-bold">⭐ ${parseFloat(show.community_rating).toFixed(2)} / 5.0</span>
+                                </div>
+                                <!-- My Rating Star Selector -->
+                                <div class="flex justify-between items-center text-[11px]">
+                                    <span class="text-gray-500">My Personal Rating:</span>
+                                    <div class="flex gap-0.5 text-xs text-gray-600">
+                                        <span onclick="event.stopPropagation(); rateShow(${show.id}, 1)" class="cursor-pointer hover:text-pink-400 transition-colors ${show.personal_rating >= 1 ? 'text-pink-500' : ''}" title="Rate 1 Star"><i class="fa-solid fa-star"></i></span>
+                                        <span onclick="event.stopPropagation(); rateShow(${show.id}, 2)" class="cursor-pointer hover:text-pink-400 transition-colors ${show.personal_rating >= 2 ? 'text-pink-500' : ''}" title="Rate 2 Stars"><i class="fa-solid fa-star"></i></span>
+                                        <span onclick="event.stopPropagation(); rateShow(${show.id}, 3)" class="cursor-pointer hover:text-pink-400 transition-colors ${show.personal_rating >= 3 ? 'text-pink-500' : ''}" title="Rate 3 Stars"><i class="fa-solid fa-star"></i></span>
+                                        <span onclick="event.stopPropagation(); rateShow(${show.id}, 4)" class="cursor-pointer hover:text-pink-400 transition-colors ${show.personal_rating >= 4 ? 'text-pink-500' : ''}" title="Rate 4 Stars"><i class="fa-solid fa-star"></i></span>
+                                        <span onclick="event.stopPropagation(); rateShow(${show.id}, 5)" class="cursor-pointer hover:text-pink-400 transition-colors ${show.personal_rating >= 5 ? 'text-pink-500' : ''}" title="Rate 5 Stars"><i class="fa-solid fa-star"></i></span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between text-[11px] border-t border-gray-800/80 pt-2">
+                                    <span class="text-gray-500">Phish Touring Era:</span>
+                                    <span class="text-emerald-400 font-bold font-mono">Era ${showEra}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            `;
+            return dropTr;
+        }
+
         // Render data rows in search grid
         function renderTable() {
             const tbody = document.getElementById('concert-table-body');
@@ -1808,96 +1902,12 @@
                     const setlist = getSetlistForShow(s.date);
 
                     // Parent Row
-                    const tr = document.createElement('tr');
-                    tr.className = `cursor-pointer hover:bg-gray-800/40 transition-colors ${isExpanded ? 'bg-gray-850 border-l-2 border-emerald-500' : ''}`;
-                    tr.onclick = () => toggleShowSetlist(s.id);
-                    tr.innerHTML = `
-                        <td class="py-3 px-2 text-center text-gray-500">
-                            <i class="fa-solid ${isExpanded ? 'fa-chevron-up text-emerald-400' : 'fa-chevron-down'} text-xs"></i>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-emerald-400 whitespace-nowrap">${s.date}</td>
-                        <td class="py-3 px-4 text-gray-200 font-medium">${s.venue}</td>
-                        <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${s.location || '-'}</td>
-                        <td class="py-3 px-4 text-yellow-500 font-mono font-bold whitespace-nowrap">⭐ ${parseFloat(s.community_rating).toFixed(2)}</td>
-                        <td class="py-3 px-4 text-pink-400 font-mono font-bold whitespace-nowrap">${s.personal_rating ? '💖 ' + s.personal_rating.toFixed(1) : '<span class="text-gray-650 italic text-[10px]">- unrated -</span>'}</td>
-                        <td class="py-3 px-4 text-gray-400 font-mono whitespace-nowrap">${showEra}</td>
-                        <td class="py-3 px-4 whitespace-nowrap">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.is_milestone ? 'bg-yellow-950/80 text-yellow-400 border border-yellow-800' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
-                                ${s.is_milestone ? 'Milestone' : 'Standard'}
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-gray-400 max-w-xs truncate" title="${s.notes || ''}">${s.notes || '-'}</td>
-                        <td class="py-3 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation();">
-                            <button onclick="deleteShow(${s.id})" class="text-red-400 hover:text-red-300 font-medium hover:underline text-[11px] ml-2">
-                                <i class="fa-solid fa-trash-can mr-1"></i>Delete
-                            </button>
-                        </td>
-                    `;
+                    const tr = createMainRow(s, isExpanded, showEra);
                     tbody.appendChild(tr);
 
                     // Accordion Child Dropdown Row (Setlists details)
                     if (isExpanded) {
-                        const dropTr = document.createElement('tr');
-                        dropTr.className = "bg-gray-950 border-b border-gray-800";
-                        dropTr.innerHTML = `
-                            <td colspan="10" class="py-4 px-6">
-                                <div class="space-y-3 border-l-2 border-emerald-500/50 pl-4 py-1">
-                                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                                        <i class="fa-solid fa-list-music text-[10px]"></i> Expanded Setlist Breakdown
-                                    </h4>
-                                    
-                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 text-xs">
-                                        <!-- Sets -->
-                                        <div class="md:col-span-8 space-y-2">
-                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 1 (Click songs to see stats):</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set1)}</p>
-                                            </div>
-                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 2:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set2)}</p>
-                                            </div>
-                                            ${setlist.set3 ? `
-                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Set 3:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.set3)}</p>
-                                            </div>` : ''}
-                                            <div class="bg-gray-900/60 p-2.5 rounded border border-gray-800">
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Encore:</span>
-                                                <p class="text-gray-300 mt-1 font-mono text-[11px]">${formatInteractiveSetlist(setlist.encore)}</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Highlights -->
-                                        <div class="md:col-span-4 bg-gray-900/40 p-3 rounded border border-gray-850 space-y-3">
-                                            <div>
-                                                <span class="font-bold text-gray-400 uppercase text-[9px] tracking-wide block">Concert Notes / Jams:</span>
-                                                <p class="text-gray-400 mt-1 text-[11px] italic">${s.notes || 'No custom notes provided.'}</p>
-                                            </div>
-                                            <div class="border-t border-gray-800/80 pt-2 flex justify-between text-[11px]">
-                                                <span class="text-gray-500">Community Rank:</span>
-                                                <span class="text-yellow-400 font-bold">⭐ ${parseFloat(s.community_rating).toFixed(2)} / 5.0</span>
-                                            </div>
-                                            <!-- My Rating Star Selector -->
-                                            <div class="flex justify-between items-center text-[11px]">
-                                                <span class="text-gray-500">My Personal Rating:</span>
-                                                <div class="flex gap-0.5 text-xs text-gray-600">
-                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 1)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 1 ? 'text-pink-500' : ''}" title="Rate 1 Star"><i class="fa-solid fa-star"></i></span>
-                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 2)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 2 ? 'text-pink-500' : ''}" title="Rate 2 Stars"><i class="fa-solid fa-star"></i></span>
-                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 3)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 3 ? 'text-pink-500' : ''}" title="Rate 3 Stars"><i class="fa-solid fa-star"></i></span>
-                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 4)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 4 ? 'text-pink-500' : ''}" title="Rate 4 Stars"><i class="fa-solid fa-star"></i></span>
-                                                    <span onclick="event.stopPropagation(); rateShow(${s.id}, 5)" class="cursor-pointer hover:text-pink-400 transition-colors ${s.personal_rating >= 5 ? 'text-pink-500' : ''}" title="Rate 5 Stars"><i class="fa-solid fa-star"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="flex justify-between text-[11px] border-t border-gray-800/80 pt-2">
-                                                <span class="text-gray-500">Phish Touring Era:</span>
-                                                <span class="text-emerald-400 font-bold font-mono">Era ${showEra}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        `;
+                        const dropTr = createExpandedRow(s, showEra, setlist);
                         tbody.appendChild(dropTr);
                     }
                 }
