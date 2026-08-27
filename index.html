@@ -1907,13 +1907,19 @@
             const rawVal = document.getElementById('bulk-input-area').value;
             const parsed = parseRawText(rawVal);
             if (parsed.length > 0) {
-                // Simple deduplication based on exact date
+                // Deduplication based on exact date using a Map for O(1) lookups
+                const dateToIndex = new Map();
+                shows.forEach((s, index) => {
+                    dateToIndex.set(s.date, index);
+                });
+
                 parsed.forEach(parsedShow => {
-                    const duplicateIndex = shows.findIndex(s => s.date === parsedShow.date);
-                    if (duplicateIndex > -1) {
+                    const duplicateIndex = dateToIndex.get(parsedShow.date);
+                    if (duplicateIndex !== undefined) {
                         shows[duplicateIndex] = parsedShow; // Update existing
                     } else {
                         shows.push(parsedShow); // Add new
+                        dateToIndex.set(parsedShow.date, shows.length - 1);
                     }
                 });
                 refreshAll();
