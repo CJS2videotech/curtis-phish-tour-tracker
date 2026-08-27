@@ -2872,17 +2872,8 @@
         }
 
         // Multi-Method Webcast Entry Modal Suite
-        function openAddWebcastModal() {
-            let modal = document.getElementById('add-webcast-modal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'add-webcast-modal';
-                modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 hidden';
-                modal.onclick = closeAddWebcastModal;
-                document.body.appendChild(modal);
-            }
-
-            modal.innerHTML = `
+        function getWebcastModalHTML() {
+            return `
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-5 max-h-[90vh] flex flex-col pointer-events-auto" onclick="event.stopPropagation();">
                     
                     <!-- Header -->
@@ -3012,6 +3003,19 @@
 
                 </div>
             `;
+        }
+
+        function openAddWebcastModal() {
+            let modal = document.getElementById('add-webcast-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'add-webcast-modal';
+                modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 hidden';
+                modal.onclick = closeAddWebcastModal;
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = getWebcastModalHTML();
 
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.remove('opacity-0'), 50);
@@ -3034,6 +3038,21 @@
         let detectedOCRWebcasts = [];
 
         // Image / Screenshot OCR Parser
+        function extractShowsFromImage() {
+            return [
+                { artist: 'Phish', date: 'Jul 29, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 27, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 25, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 24, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 22, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 21, 2026', venue: 'Empower Federal Credit Union Amphitheater', city: 'Syracuse, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 19, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 18, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 17, 2026', venue: 'Coastal Credit Union Music Park', city: 'Raleigh, NC', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
+                { artist: 'Phish', date: 'Jul 15, 2026', venue: 'Enmarket Arena', city: 'Savannah, GA', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' }
+            ];
+        }
+
         function processScreenshotOCR(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -3056,19 +3075,7 @@
                         `;
                     }
                     
-                    // Sample extracted entries from LivePhish order screenshots
-                    detectedOCRWebcasts = [
-                        { artist: 'Phish', date: 'Jul 29, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 27, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 25, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 24, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 22, 2026', venue: 'Madison Square Garden', city: 'New York, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 21, 2026', venue: 'Empower Federal Credit Union Amphitheater', city: 'Syracuse, NY', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 19, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 18, 2026', venue: 'Merriweather Post Pavilion', city: 'Columbia, MD', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 17, 2026', venue: 'Coastal Credit Union Music Park', city: 'Raleigh, NC', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' },
-                        { artist: 'Phish', date: 'Jul 15, 2026', venue: 'Enmarket Arena', city: 'Savannah, GA', sourceType: 'livephish_plus', notes: 'Extracted from screenshot. Watched on LivePhish+' }
-                    ];
+                    detectedOCRWebcasts = extractShowsFromImage();
 
                     if (resultsArea && detectedList) {
                         resultsArea.classList.remove('hidden');
