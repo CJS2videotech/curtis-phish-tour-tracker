@@ -739,6 +739,16 @@
     </div>
 
     <script>
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return str;
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Global variables for databases & map instances
         let shows = [];
         let mapInstance = null;
@@ -1607,8 +1617,8 @@
                 datesHTML += `
                     <div class="bg-gray-800/60 rounded-lg p-2.5 border border-gray-750 flex justify-between items-center text-[11px]">
                         <div>
-                            <span class="font-semibold text-emerald-300">🗓️ ${s.date}</span>
-                            ${s.notes ? `<div class="text-gray-400 italic mt-0.5">${s.notes}</div>` : ""}
+                            <span class="font-semibold text-emerald-300">🗓️ ${escapeHTML(s.date)}</span>
+                            ${s.notes ? `<div class="text-gray-400 italic mt-0.5">${escapeHTML(s.notes)}</div>` : ""}
                         </div>
                         <span class="${s.is_milestone ? 'bg-yellow-900/40 text-yellow-300 border-yellow-800' : 'bg-gray-700/50 text-gray-300 border-gray-600'} px-1.5 py-0.5 rounded border text-[10px]">
                             ${s.is_milestone ? 'Milestone' : 'Show'}
@@ -1787,9 +1797,9 @@
                         <td class="py-3 px-2 text-center text-gray-500">
                             <i class="fa-solid ${isExpanded ? 'fa-chevron-up text-emerald-400' : 'fa-chevron-down'} text-xs"></i>
                         </td>
-                        <td class="py-3 px-4 font-semibold text-emerald-400 whitespace-nowrap">${s.date}</td>
-                        <td class="py-3 px-4 text-gray-200 font-medium">${s.venue}</td>
-                        <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${s.location || '-'}</td>
+                        <td class="py-3 px-4 font-semibold text-emerald-400 whitespace-nowrap">${escapeHTML(s.date)}</td>
+                        <td class="py-3 px-4 text-gray-200 font-medium">${escapeHTML(s.venue)}</td>
+                        <td class="py-3 px-4 text-gray-400 whitespace-nowrap">${escapeHTML(s.location || '-')}</td>
                         <td class="py-3 px-4 text-yellow-500 font-mono font-bold whitespace-nowrap">⭐ ${parseFloat(s.community_rating).toFixed(2)}</td>
                         <td class="py-3 px-4 text-pink-400 font-mono font-bold whitespace-nowrap">${s.personal_rating ? '💖 ' + s.personal_rating.toFixed(1) : '<span class="text-gray-650 italic text-[10px]">- unrated -</span>'}</td>
                         <td class="py-3 px-4 text-gray-400 font-mono whitespace-nowrap">${showEra}</td>
@@ -1798,7 +1808,7 @@
                                 ${s.is_milestone ? 'Milestone' : 'Standard'}
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-gray-400 max-w-xs truncate" title="${s.notes || ''}">${s.notes || '-'}</td>
+                        <td class="py-3 px-4 text-gray-400 max-w-xs truncate" title="${escapeHTML(s.notes || '')}">${escapeHTML(s.notes || '-')}</td>
                         <td class="py-3 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation();">
                             <button onclick="deleteShow(${s.id})" class="text-red-400 hover:text-red-300 font-medium hover:underline text-[11px] ml-2">
                                 <i class="fa-solid fa-trash-can mr-1"></i>Delete
@@ -2223,9 +2233,9 @@
                 showsListHTML += `
                     <div onclick="event.stopPropagation(); navigateToShow('${s.id}')" class="bg-gray-850 hover:bg-gray-800 border border-gray-800 hover:border-cyan-500/50 rounded-xl p-3 flex justify-between items-center cursor-pointer transition-all">
                         <div>
-                            <div class="text-[10px] text-gray-500 font-semibold uppercase">🗓️ ${s.date}</div>
-                            <div class="text-xs font-bold text-gray-200 mt-0.5">${s.venue}</div>
-                            <div class="text-[10px] text-gray-400 mt-0.5">${s.location}</div>
+                            <div class="text-[10px] text-gray-500 font-semibold uppercase">🗓️ ${escapeHTML(s.date)}</div>
+                            <div class="text-xs font-bold text-gray-200 mt-0.5">${escapeHTML(s.venue)}</div>
+                            <div class="text-[10px] text-gray-400 mt-0.5">${escapeHTML(s.location || "")}</div>
                         </div>
                         <div class="text-right">
                             <span class="text-[9px] bg-cyan-950/50 text-cyan-400 border border-cyan-800/40 px-2 py-0.5 rounded-full font-bold">Seen</span>
@@ -2730,9 +2740,9 @@
                 inPersonHTML += `
                     <div class="bg-gray-850 border border-gray-800 rounded-xl p-3 flex justify-between items-center text-xs shadow-md">
                         <div>
-                            <div class="text-[10px] text-pink-400 font-bold uppercase">🗓️ ${s.date}</div>
-                            <div class="font-bold text-gray-200 mt-0.5">${s.venue}</div>
-                            <div class="text-[10px] text-gray-400">${s.location}</div>
+                            <div class="text-[10px] text-pink-400 font-bold uppercase">🗓️ ${escapeHTML(s.date)}</div>
+                            <div class="font-bold text-gray-200 mt-0.5">${escapeHTML(s.venue)}</div>
+                            <div class="text-[10px] text-gray-400">${escapeHTML(s.location || "")}</div>
                         </div>
                         <div class="text-right">
                             <span class="text-[9px] bg-pink-950/80 text-pink-300 border border-pink-700/50 px-2.5 py-1 rounded-full font-bold">🎟️ In-Person</span>
@@ -2753,9 +2763,9 @@
                 couchHTML += `
                     <div class="bg-gray-850 border border-gray-800 rounded-xl p-3 flex justify-between items-center text-xs shadow-md">
                         <div>
-                            <div class="text-[10px] text-cyan-400 font-bold uppercase">🗓️ ${s.date}</div>
-                            <div class="font-bold text-gray-200 mt-0.5">${s.venue}</div>
-                            <div class="text-[10px] text-gray-400">${s.location}</div>
+                            <div class="text-[10px] text-cyan-400 font-bold uppercase">🗓️ ${escapeHTML(s.date)}</div>
+                            <div class="font-bold text-gray-200 mt-0.5">${escapeHTML(s.venue)}</div>
+                            <div class="text-[10px] text-gray-400">${escapeHTML(s.location || "")}</div>
                         </div>
                         <div class="text-right">
                             <span class="text-[9px] ${badgeStyle} border px-2.5 py-1 rounded-full font-bold">📺 ${s.source}</span>
@@ -3034,7 +3044,7 @@
 
                     if (resultsArea && detectedList) {
                         resultsArea.classList.remove('hidden');
-                        detectedList.innerHTML = detectedOCRWebcasts.map(s => `<div>🗓️ ${s.date} - ${s.venue} (${s.city})</div>`).join('');
+                        detectedList.innerHTML = detectedOCRWebcasts.map(s => `<div>🗓️ ${escapeHTML(s.date)} - ${escapeHTML(s.venue)} (${escapeHTML(s.city || "")})</div>`).join('');
                     }
 
                     if (statusEl) statusEl.innerText = `Detected ${detectedOCRWebcasts.length} shows from screenshot. Click "Import Extracted Webcasts" below.`;
