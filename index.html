@@ -3024,7 +3024,12 @@
 
                     if (resultsArea && detectedList) {
                         resultsArea.classList.remove('hidden');
-                        detectedList.innerHTML = detectedOCRWebcasts.map(s => `<div>🗓️ ${s.date} - ${s.venue} (${s.city})</div>`).join('');
+                        detectedList.textContent = '';
+                        detectedOCRWebcasts.forEach(s => {
+                            const div = document.createElement('div');
+                            div.textContent = `🗓️ ${s.date} - ${s.venue} (${s.city})`;
+                            detectedList.appendChild(div);
+                        });
                     }
 
                     if (statusEl) statusEl.innerText = `Detected ${detectedOCRWebcasts.length} shows from screenshot. Click "Import Extracted Webcasts" below.`;
