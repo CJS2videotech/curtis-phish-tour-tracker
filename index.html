@@ -1255,7 +1255,9 @@
             let parsedStored = null;
             try {
                 parsedStored = stored ? JSON.parse(stored) : null;
-            } catch (e) {}
+            } catch (e) {
+                console.error("Error parsing stored phish_shows:", e);
+            }
 
             if (parsedStored && Array.isArray(parsedStored)) {
                 shows = parsedStored;
