@@ -1115,7 +1115,7 @@
         function isFutureDate(dateString) {
             if (!dateString) return false;
             const iso = parseToISODate(dateString);
-            if (!iso || iso.length < 10) return false;
+            if (!iso || iso.length < 10 || isNaN(new Date(iso).getTime())) return false;
             const todayIso = new Date().toISOString().split('T')[0];
             return iso > todayIso;
         }
