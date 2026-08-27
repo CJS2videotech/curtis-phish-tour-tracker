@@ -1711,13 +1711,22 @@
                 }
             });
 
+            // Pre-compute lowercase keys for faster matching
+            const venueDbEntries = Object.keys(VENUE_DB).map(key => ({
+                original: key,
+                lower: key.toLowerCase()
+            }));
+
             // Top Venues Calculations
             const venueFreq = {};
             shows.forEach(s => {
-                let matchedVenue = Object.keys(VENUE_DB).find(key => 
-                    s.venue.toLowerCase().includes(key.toLowerCase()) || 
-                    key.toLowerCase().includes(s.venue.toLowerCase())
-                ) || s.venue;
+                const sVenueLower = s.venue.toLowerCase();
+
+                const match = venueDbEntries.find(v =>
+                    sVenueLower.includes(v.lower) || v.lower.includes(sVenueLower)
+                );
+
+                const matchedVenue = match ? match.original : s.venue;
 
                 venueFreq[matchedVenue] = (venueFreq[matchedVenue] || 0) + 1;
             });
